@@ -1,0 +1,60 @@
+/* App chrome: setup wizard, forms, buttons — separate from dashboard.css
+   so the exported audit HTML never carries any of this. */
+*{box-sizing:border-box;}
+body{margin:0;background:#12100D;color:#E6DFCE;font-family:'IBM Plex Sans', sans-serif;min-height:100vh;}
+.app-shell{max-width:720px;margin:0 auto;padding:48px 24px 100px;}
+.app-shell.wide{max-width:1096px;}
+.app-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;}
+.app-header .brand{font-family:'Fraunces',serif;font-size:22px;}
+.app-header .brand em{color:#A2793C;font-style:italic;}
+.app-header button{background:transparent;border:1px solid #7C8B90;color:#E6DFCE;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 14px;cursor:pointer;}
+.app-header button:hover{border-color:#E6DFCE;}
+
+.screen{display:none;}
+.screen.active{display:block;}
+
+.card{background:#1B1814;border:1px solid #3E372E;padding:28px;margin-bottom:20px;}
+.card h2{font-family:'Fraunces',serif;font-weight:500;font-size:24px;margin:0 0 8px;}
+.card .hint{color:#9C9384;font-size:14px;line-height:1.6;margin:0 0 20px;}
+.card .hint a{color:#A2793C;}
+
+label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#9C9384;margin:16px 0 6px;}
+label:first-child{margin-top:0;}
+input[type=text], input[type=password], select{
+  width:100%;background:#12100D;border:1px solid #3E372E;color:#E6DFCE;padding:11px 12px;font-size:15px;font-family:'IBM Plex Sans',sans-serif;
+}
+input:focus, select:focus{outline:none;border-color:#A2793C;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+.btn{font-family:'IBM Plex Mono',monospace;font-size:13px;background:#A2793C;color:#12100D;border:none;padding:12px 22px;cursor:pointer;font-weight:600;letter-spacing:0.02em;}
+.btn:hover{background:#B98D4F;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.btn.secondary{background:transparent;border:1px solid #7C8B90;color:#E6DFCE;}
+.btn.secondary:hover{border-color:#E6DFCE;}
+.btn-row{display:flex;gap:12px;margin-top:24px;}
+
+.step-list{list-style:none;padding:0;margin:0 0 20px;counter-reset:step;}
+.step-list li{counter-increment:step;padding-left:32px;position:relative;margin-bottom:10px;color:#C7BFAE;font-size:14px;line-height:1.6;}
+.step-list li::before{content:counter(step);position:absolute;left:0;top:0;width:20px;height:20px;border:1px solid #7C8B90;border-radius:50%;font-family:'IBM Plex Mono',monospace;font-size:11px;display:flex;align-items:center;justify-content:center;color:#9C9384;}
+.step-list code{background:#12100D;border:1px solid #3E372E;padding:1px 6px;font-size:12.5px;color:#E6DFCE;}
+
+.status-banner{padding:12px 16px;border:1px solid #3E372E;font-size:13.5px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;}
+.status-banner.error{border-color:#7A3128;color:#E8A79B;background:rgba(122,49,40,0.12);}
+.status-banner.info{border-color:#48585F;color:#B9C6CA;}
+.status-banner.success{border-color:#3E6B4F;color:#9FCBAF;}
+
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;}
+.radio-chip{border:1px solid #3E372E;padding:9px 14px;cursor:pointer;font-size:13.5px;color:#C7BFAE;}
+.radio-chip.selected{border-color:#A2793C;color:#E6DFCE;background:rgba(162,121,60,0.12);}
+.radio-chip input{display:none;}
+
+.spinner{width:28px;height:28px;border:3px solid #3E372E;border-top-color:#A2793C;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-wrap{text-align:center;padding:60px 20px;}
+.loading-wrap p{color:#9C9384;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+
+.dashboard-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;background:#1B1814;border:1px solid #3E372E;padding:14px 18px;}
+.dashboard-toolbar .btn-row{margin:0;}
+#dashboard-mount{background:var(--paper,#E6DFCE);}
+
+.small-note{font-size:12.5px;color:#7C8B90;margin-top:8px;}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO / AEO Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div class="app-shell" id="app-shell">
+  <div class="app-header">
+    <div class="brand">SEO / AEO <em>Audit.</em></div>
+    <button id="btn-reset" type="button" style="display:none;">Start over</button>
+  </div>
+
+  <!-- SCREEN 1: one-time Google Cloud OAuth setup -->
+  <section class="screen active" id="screen-setup">
+    <div class="card">
+      <h2>Connect Google</h2>
+      <p class="hint">This app talks directly to Google's Search Console and GA4 APIs from your browser — no backend, nothing stored server-side. You bring your own OAuth Client ID (free, takes ~3 minutes to create).</p>
+      <ol class="step-list">
+        <li>Open <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console → Credentials</a> (create a project if you don't have one).</li>
+        <li>Enable the <strong>Search Console API</strong> and <strong>Google Analytics Data API</strong> under "APIs &amp; Services → Library".</li>
+        <li>Create an <strong>OAuth Client ID</strong> of type "Web application".</li>
+        <li>Under "Authorized JavaScript origins", add the URL this page is running on (e.g. <code id="origin-hint"></code>).</li>
+        <li>Copy the generated Client ID and paste it below.</li>
+      </ol>
+      <label for="input-client-id">Google OAuth Client ID</label>
+      <input type="text" id="input-client-id" placeholder="xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com">
+      <div id="setup-error"></div>
+      <div class="btn-row">
+        <button class="btn" id="btn-save-client-id" type="button">Continue</button>
+      </div>
+      <p class="small-note">Stored only in this browser's local storage. Never sent anywhere except directly to Google.</p>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: sign in + scope the audit -->
+  <section class="screen" id="screen-connect">
+    <div class="card">
+      <h2>Sign in</h2>
+      <p class="hint">Grant read-only access to Search Console and Google Analytics.</p>
+      <div id="connect-status"></div>
+      <div class="btn-row">
+        <button class="btn" id="btn-sign-in" type="button">Sign in with Google</button>
+      </div>
+    </div>
+
+    <div class="card" id="scope-card" style="display:none;">
+      <h2>Scope the audit</h2>
+
+      <label for="select-site">Search Console property</label>
+      <select id="select-site"></select>
+
+      <div class="field-row">
+        <div>
+          <label for="input-site-name">Business / site name</label>
+          <input type="text" id="input-site-name" placeholder="e.g. Murray Hill Barber Co.">
+        </div>
+        <div>
+          <label for="input-site-category">Location / category</label>
+          <input type="text" id="input-site-category" placeholder="e.g. Murray Hill, NYC · Barbershop">
+        </div>
+      </div>
+
+      <label for="input-brand-terms">Brand terms (comma-separated)</label>
+      <input type="text" id="input-brand-terms" placeholder="e.g. murray hill barber, mhbarberco">
+      <p class="small-note">Used to split branded vs. non-branded query traffic.</p>
+
+      <label>Date range</label>
+      <div class="radio-group" id="date-range-group">
+        <label class="radio-chip"><input type="radio" name="range" value="28"><span>28 days</span></label>
+        <label class="radio-chip selected"><input type="radio" name="range" value="90" checked><span>3 months</span></label>
+        <label class="radio-chip"><input type="radio" name="range" value="180"><span>6 months</span></label>
+        <label class="radio-chip"><input type="radio" name="range" value="365"><span>12 months</span></label>
+      </div>
+
+      <label for="select-ga4-property">GA4 property</label>
+      <select id="select-ga4-property"></select>
+      <input type="text" id="input-ga4-property-manual" placeholder="Numeric GA4 property ID, e.g. 123456789" style="display:none;margin-top:8px;">
+      <p class="small-note" id="ga4-discovery-note"></p>
+
+      <div class="btn-row">
+        <button class="btn" id="btn-run-audit" type="button">Run audit</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: loading -->
+  <section class="screen" id="screen-loading">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p id="loading-status">Pulling data from Search Console…</p>
+    </div>
+  </section>
+</div>
+
+<!-- SCREEN 4: dashboard (wide layout, own shell) -->
+<div class="app-shell wide screen" id="screen-dashboard">
+  <div class="app-header">
+    <div class="brand">SEO / AEO <em>Audit.</em></div>
+    <button id="btn-reset-2" type="button">Start over</button>
+  </div>
+  <div class="dashboard-toolbar">
+    <span class="small-note" style="margin:0;">Content plan fields are editable — click into them before exporting.</span>
+    <div class="btn-row">
+      <button class="btn secondary" id="btn-rerun" type="button">Change scope</button>
+      <button class="btn" id="btn-export" type="button">Download standalone HTML</button>
+    </div>
+  </div>
+  <div id="dashboard-mount"></div>
+</div>
+
+<script type="module" src="assets/main.js"></script>
+</body>
+</html>
