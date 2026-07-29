@@ -113,6 +113,30 @@
       <button class="btn" id="btn-export" type="button">Download standalone HTML</button>
     </div>
   </div>
+
+  <div class="card" id="aeo-panel">
+    <h2>Automate the AEO content check</h2>
+    <p class="hint">Judges whether specific pages are answer-first and use the same language your customers actually search with — using Claude directly, grounded in this audit's real non-branded queries. A browser can't read most external sites' content on its own (see "Try auto-fetch" below), so paste the page in if fetching fails. Updates the "AEO readiness" checklist below when done.</p>
+
+    <label for="input-anthropic-key">Anthropic API key</label>
+    <input type="password" id="input-anthropic-key" placeholder="sk-ant-...">
+    <p class="small-note">From <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:#A2793C;">console.anthropic.com</a>. Stored only in this browser's local storage and sent only directly to Anthropic. Costs a small amount per page checked. Treat it like a password.</p>
+
+    <label for="select-aeo-model">Model</label>
+    <select id="select-aeo-model">
+      <option value="claude-sonnet-5">Claude Sonnet 5 (recommended)</option>
+      <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (cheaper, faster)</option>
+    </select>
+
+    <div id="aeo-page-rows"></div>
+    <button class="link-btn" id="btn-add-aeo-page" type="button">+ Add another page</button>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-run-aeo-check" type="button">Run AEO check</button>
+    </div>
+    <div id="aeo-check-status"></div>
+  </div>
+
   <div id="dashboard-mount" class="wrap"></div>
 </div>
 

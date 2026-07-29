@@ -98,10 +98,22 @@ export function runAudit(raw) {
 
   // Content gaps: non-branded queries with meaningful impressions but weak
   // ranking (page 2+), i.e. demand exists but no page is winning it.
-  const contentGapCandidates = nonBranded
+  const contentGapCandidatesFull = nonBranded
     .filter((r) => r.impressions >= 10 && r.position > 10)
+    .sort((a, b) => b.impressions - a.impressions);
+  const contentGapCandidates = contentGapCandidatesFull.slice(0, 12);
+  const contentGapStats = {
+    nonBrandedQueryCount: nonBranded.length,
+    qualifyingCount: contentGapCandidatesFull.length,
+    minImpressions: 10,
+    minPosition: 10,
+  };
+
+  const topNonBrandedQueries = nonBranded
+    .slice()
     .sort((a, b) => b.impressions - a.impressions)
-    .slice(0, 12);
+    .slice(0, 10)
+    .map((r) => r.query);
 
   const findings = [];
 
@@ -263,10 +275,91 @@ export function runAudit(raw) {
     zeroClickTopRank,
     tickets,
     contentPlan,
+    contentGapStats,
+    topNonBrandedQueries,
     aeoChecklist,
     ga4: summarizeGa4(raw.ga4),
     pageRows,
   };
+}
+
+/**
+ * Merges Claude-analyzed per-page AEO findings into the baseline checklist
+ * built by runAudit(). Called after the user runs the optional AEO content
+ * check, so this stays separate from runAudit (which only ever uses
+ * GSC/GA4 numbers, never live page content).
+ * @param {Array} baselineChecklist - audit.aeoChecklist from runAudit()
+ * @param {Array} pageResults - [{ url, schema?: {present,types}, analysis?: {answer_first, customer_language}, error? }]
+ */
+export function buildAeoChecklistWithPageResults(baselineChecklist, pageResults) {
+  const checklist = baselineChecklist.map((c) => ({ ...c }));
+
+  const schemaChecked = pageResults.filter((p) => p.schema);
+  if (schemaChecked.length) {
+    const idx = checklist.findIndex((c) => c.title.includes('schema'));
+    if (idx >= 0) {
+      const anyPresent = schemaChecked.some((p) => p.schema.present);
+      checklist[idx] = {
+        ...checklist[idx],
+        done: anyPresent,
+        description: anyPresent
+          ? `JSON-LD schema found on ${schemaChecked.filter((p) => p.schema.present).length} of ${schemaChecked.length} page(s) checked. Note: valuable for AI-answer-engine parsing, not the retired FAQ rich-result dropdown.`
+          : `No JSON-LD schema block detected on ${schemaChecked.length} page(s) checked.`,
+        detail: schemaChecked.map((p) => ({
+          url: p.url,
+          verdict: p.schema.present ? `Found${p.schema.types.length ? ` (${p.schema.types.join(', ')})` : ''}` : 'Not found',
+          note: p.schema.present ? '' : 'No <script type="application/ld+json"> block detected on this page.',
+        })),
+      };
+    }
+  }
+
+  const analyzed = pageResults.filter((p) => p.analysis);
+  if (analyzed.length) {
+    const answerFirstIdx = checklist.findIndex((c) => c.title === 'Answer-first content');
+    if (answerFirstIdx >= 0) {
+      const failing = analyzed.filter((p) => p.analysis.answer_first.verdict !== 'yes');
+      checklist[answerFirstIdx] = {
+        ...checklist[answerFirstIdx],
+        done: failing.length === 0,
+        description: failing.length === 0
+          ? `Confirmed answer-first across ${analyzed.length} page(s) checked.`
+          : `${failing.length} of ${analyzed.length} page(s) checked don't open by directly answering the core question — see below.`,
+        detail: analyzed.map((p) => ({
+          url: p.url,
+          verdict: p.analysis.answer_first.verdict,
+          note: p.analysis.answer_first.recommendation || p.analysis.answer_first.evidence || '',
+        })),
+      };
+    }
+    const customerLangIdx = checklist.findIndex((c) => c.title === 'Content matches how customers actually ask');
+    if (customerLangIdx >= 0) {
+      const failing = analyzed.filter((p) => p.analysis.customer_language.verdict !== 'yes');
+      checklist[customerLangIdx] = {
+        ...checklist[customerLangIdx],
+        done: failing.length === 0,
+        description: failing.length === 0
+          ? `Confirmed customer-language match across ${analyzed.length} page(s) checked.`
+          : `${failing.length} of ${analyzed.length} page(s) checked lean on internal/industry language over how customers actually search — see below.`,
+        detail: analyzed.map((p) => ({
+          url: p.url,
+          verdict: p.analysis.customer_language.verdict,
+          note: p.analysis.customer_language.recommendation || p.analysis.customer_language.evidence || '',
+        })),
+      };
+    }
+  }
+
+  const failed = pageResults.filter((p) => p.error);
+  if (failed.length) {
+    checklist.push({
+      done: false,
+      title: `${failed.length} page(s) couldn't be checked`,
+      description: failed.map((p) => `${p.url}: ${p.error}`).join(' · '),
+    });
+  }
+
+  return checklist;
 }
 
 function summarizeGa4(ga4) {

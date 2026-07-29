@@ -28,10 +28,9 @@ credentials.
      rankings (content gaps)
    - builds a Now/Next/Later priority queue and a page-by-page
      content plan
-   - gives a starting AEO checklist (schema, answer-first content —
-     items that need eyeballing the live site are left as manual
-     todos, since a browser app can't reliably fetch and parse an
-     arbitrary third-party site's HTML)
+   - gives a starting AEO checklist (schema, answer-first content,
+     customer-language match) that's manual by default, or automated
+     per-page if you set up the optional Claude check below
 4. Renders it all into the same branded dashboard look as the
    original skill template, editable in place, with a one-click
    "Download standalone HTML" export you can hand to a client.
@@ -64,6 +63,37 @@ minutes, does not require billing:
 6. Copy the generated Client ID — the app will ask for it the first
    time you open it, and remembers it in `localStorage` after that.
 
+## Optional: automated AEO content check
+
+Two AEO checklist items — "answer-first content" and "content matches
+how customers actually ask" — genuinely need judgment, not just a
+number from an API. The dashboard has an "Automate the AEO content
+check" panel for this that uses Claude directly from your browser:
+
+1. Get an API key from [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys).
+2. Paste it into the panel (remembered in `localStorage`, sent only to
+   Anthropic — treat it like a password, and never deploy a copy of
+   this app with a key baked in).
+3. For each page you want checked, enter its URL and click **Try
+   auto-fetch**. This will fail for most sites — browsers block
+   cross-origin reads by default (the same restriction that keeps a
+   random webpage from reading your other open tabs), and most
+   ordinary sites don't opt out of it. When it fails, paste the page's
+   HTML (view-source, or just the visible text) into the box below
+   instead.
+4. Click **Run AEO check**. Each page gets graded against your real
+   top non-branded Search Console queries, so "matches customer
+   language" is judged against actual search behavior, not a guess.
+   Results land in the "AEO readiness" checklist below — click a row
+   to expand it and see the evidence/recommendation per page.
+
+This also deterministically detects JSON-LD schema (FAQPage, Service,
+LocalBusiness, etc.) on any page whose HTML you provide — that part
+doesn't need Claude at all.
+
+Costs a small amount per page checked (a fraction of a cent to a
+couple of cents on Sonnet, depending on page length).
+
 ## Running it
 
 Any static file server works — this is plain HTML/CSS/JS with no
@@ -91,6 +121,7 @@ assets/dashboard.css     the audit dashboard's visual design (also embedded
 assets/google-auth.js    Google Identity Services OAuth wrapper
 assets/api.js            Search Console + GA4 Data API calls
 assets/audit-engine.js   data → findings/tickets/content-plan heuristics
+assets/aeo-check.js      optional per-page Claude analysis + schema detection
 assets/render.js         audit object → dashboard HTML, + standalone export
 assets/main.js           screen wiring / app entry point
 reference/SKILL.md              the original Claude skill this app is based on

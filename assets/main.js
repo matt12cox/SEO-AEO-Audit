@@ -1,7 +1,8 @@
 import { initAuth, signIn, getToken } from './google-auth.js';
 import { gscListSites, gscSearchAnalytics, gscSitemaps, ga4ListProperties, ga4RunReport } from './api.js';
-import { runAudit, normalizeGa4Report } from './audit-engine.js';
+import { runAudit, normalizeGa4Report, buildAeoChecklistWithPageResults } from './audit-engine.js';
 import { renderDashboardBody, buildStandaloneHtml, slugForFile } from './render.js';
+import { getStoredApiKey, storeApiKey, tryAutoFetch, analyzePage } from './aeo-check.js';
 
 const $ = (sel) => document.querySelector(sel);
 const CLIENT_ID_KEY = 'seo-aeo-audit:client-id';
@@ -32,6 +33,13 @@ const els = {
   btnRerun: $('#btn-rerun'),
   btnReset: $('#btn-reset'),
   btnReset2: $('#btn-reset-2'),
+
+  inputAnthropicKey: $('#input-anthropic-key'),
+  selectAeoModel: $('#select-aeo-model'),
+  aeoPageRows: $('#aeo-page-rows'),
+  btnAddAeoPage: $('#btn-add-aeo-page'),
+  btnRunAeoCheck: $('#btn-run-aeo-check'),
+  aeoCheckStatus: $('#aeo-check-status'),
 };
 
 let lastAudit = null;
@@ -69,6 +77,7 @@ function rangeLabel(days) {
 // ---------- Screen 1: setup ----------
 
 els.originHint.textContent = window.location.origin;
+els.inputAnthropicKey.value = getStoredApiKey();
 
 const savedClientId = localStorage.getItem(CLIENT_ID_KEY);
 if (savedClientId) {
@@ -232,6 +241,7 @@ async function runFullAudit() {
 
     els.dashboardMount.innerHTML = renderDashboardBody(audit, formMeta);
     wireDashboardInteractions();
+    resetAeoPanel(siteUrl);
     showScreen('screen-dashboard');
   } catch (err) {
     showScreen('screen-connect');
@@ -259,6 +269,132 @@ function wireDashboardInteractions() {
     });
   });
 }
+
+// ---------- AEO content check panel ----------
+
+function guessHomepageUrl(siteUrl) {
+  if (siteUrl.startsWith('sc-domain:')) return `https://${siteUrl.replace('sc-domain:', '')}/`;
+  return siteUrl;
+}
+
+function addAeoRow(prefillUrl = '') {
+  const div = document.createElement('div');
+  div.className = 'aeo-page-row';
+  div.innerHTML = `
+    <label>Page URL</label>
+    <div class="aeo-url-row">
+      <input type="text" class="aeo-url" placeholder="https://example.com/">
+      <button type="button" class="btn secondary aeo-fetch-btn">Try auto-fetch</button>
+    </div>
+    <p class="small-note aeo-fetch-status"></p>
+    <label>Page HTML or visible text</label>
+    <textarea class="aeo-content" rows="4" placeholder="Paste the page's HTML or visible text here if auto-fetch doesn't work..."></textarea>
+    <button type="button" class="link-btn aeo-remove-row">Remove page</button>
+  `;
+  div.querySelector('.aeo-url').value = prefillUrl;
+  els.aeoPageRows.appendChild(div);
+}
+
+function resetAeoPanel(siteUrl) {
+  els.aeoPageRows.innerHTML = '';
+  addAeoRow(guessHomepageUrl(siteUrl));
+  clearBanner(els.aeoCheckStatus);
+}
+
+els.btnAddAeoPage.addEventListener('click', () => addAeoRow());
+
+els.aeoPageRows.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('aeo-remove-row')) {
+    e.target.closest('.aeo-page-row').remove();
+    return;
+  }
+  if (e.target.classList.contains('aeo-fetch-btn')) {
+    const row = e.target.closest('.aeo-page-row');
+    const url = row.querySelector('.aeo-url').value.trim();
+    const status = row.querySelector('.aeo-fetch-status');
+    const textarea = row.querySelector('.aeo-content');
+    if (!url) {
+      status.textContent = 'Enter a URL first.';
+      return;
+    }
+    status.textContent = 'Fetching…';
+    const result = await tryAutoFetch(url);
+    if (result.ok) {
+      textarea.value = result.html;
+      status.textContent = 'Fetched successfully — content filled in below. Review it, then run the check.';
+    } else {
+      status.textContent = `Couldn't fetch directly (${result.error}) — expected for most sites. Paste the page's HTML or visible text below instead.`;
+    }
+  }
+});
+
+els.btnRunAeoCheck.addEventListener('click', async () => {
+  const apiKey = els.inputAnthropicKey.value.trim();
+  if (!apiKey) {
+    banner(els.aeoCheckStatus, 'Enter your Anthropic API key first.');
+    return;
+  }
+  storeApiKey(apiKey);
+  const model = els.selectAeoModel.value;
+  const rows = [...els.aeoPageRows.querySelectorAll('.aeo-page-row')];
+  const jobs = rows
+    .map((row) => ({
+      row,
+      url: row.querySelector('.aeo-url').value.trim(),
+      content: row.querySelector('.aeo-content').value.trim(),
+      status: row.querySelector('.aeo-fetch-status'),
+    }))
+    .filter((j) => j.url);
+
+  if (jobs.length === 0) {
+    banner(els.aeoCheckStatus, 'Add at least one page with a URL.');
+    return;
+  }
+  if (!lastAudit) {
+    banner(els.aeoCheckStatus, 'Run the main audit first.');
+    return;
+  }
+
+  els.btnRunAeoCheck.disabled = true;
+  banner(els.aeoCheckStatus, `Analyzing ${jobs.length} page(s) with Claude…`, 'info');
+
+  const pageResults = [];
+  for (const job of jobs) {
+    if (!job.content) {
+      job.status.textContent = 'Skipped — no content available (auto-fetch failed and nothing was pasted).';
+      pageResults.push({ url: job.url, error: 'no content provided' });
+      continue;
+    }
+    try {
+      job.status.textContent = 'Analyzing with Claude…';
+      const { schema, analysis } = await analyzePage({
+        apiKey,
+        model,
+        url: job.url,
+        content: job.content,
+        targetQueries: lastAudit.topNonBrandedQueries || [],
+        siteName: lastFormMeta?.siteName,
+      });
+      pageResults.push({ url: job.url, schema, analysis });
+      job.status.textContent = 'Done.';
+    } catch (err) {
+      pageResults.push({ url: job.url, error: err.message });
+      job.status.textContent = `Analysis failed: ${err.message}`;
+    }
+  }
+
+  lastAudit.aeoChecklist = buildAeoChecklistWithPageResults(lastAudit.aeoChecklist, pageResults);
+  els.dashboardMount.innerHTML = renderDashboardBody(lastAudit, lastFormMeta);
+  wireDashboardInteractions();
+
+  const succeeded = pageResults.filter((p) => p.analysis).length;
+  els.btnRunAeoCheck.disabled = false;
+  banner(
+    els.aeoCheckStatus,
+    `Checked ${succeeded} of ${jobs.length} page(s). Scroll down to "AEO readiness" — click a row to expand its findings.`,
+    succeeded > 0 ? 'success' : 'error'
+  );
+});
 
 els.btnExport.addEventListener('click', async () => {
   if (!lastAudit) return;

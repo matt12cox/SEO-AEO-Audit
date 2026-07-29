@@ -98,9 +98,10 @@ function renderTickets(tickets) {
     .join('');
 }
 
-function renderPlanCards(plan) {
+function renderPlanCards(plan, stats) {
   if (!plan || plan.length === 0) {
-    return '<p class="sec-intro">No content gaps identified in this range — non-branded queries are already ranking on page 1, or there is not enough query volume yet to identify gaps.</p>';
+    const s = stats || { nonBrandedQueryCount: 0, qualifyingCount: 0, minImpressions: 10, minPosition: 10 };
+    return `<p class="sec-intro">No content gap cards to show: of ${s.nonBrandedQueryCount} non-branded quer${s.nonBrandedQueryCount === 1 ? 'y' : 'ies'} in this range, none had ≥${s.minImpressions} impressions while ranking beyond position ${s.minPosition} (the bar for "real demand, no page winning it yet"). ${s.nonBrandedQueryCount === 0 ? 'That likely means your brand-terms field is matching everything, or there\'s very little non-branded query volume in this range — try widening the date range or double-checking brand terms.' : 'That\'s a good sign if your non-branded queries are already ranking well on page 1.'}</p>`;
   }
   return plan
     .map(
@@ -128,10 +129,24 @@ function renderPlanCards(plan) {
 
 function renderChecklist(items) {
   return items
-    .map(
-      (c) => `
-      <div class="check-item ${c.done ? 'done' : 'todo'}"><span class="mark">${c.done ? '✓' : '+'}</span><p><strong>${esc(c.title)}</strong> ${esc(c.description)}</p></div>`
-    )
+    .map((c) => {
+      const mark = c.done ? '✓' : '+';
+      const cls = c.done ? 'done' : 'todo';
+      if (c.detail && c.detail.length) {
+        const rows = c.detail
+          .map(
+            (d) => `<li><span class="mono">${esc(d.url)}</span> — <strong>${esc(d.verdict)}</strong>${d.note ? `: ${esc(d.note)}` : ''}</li>`
+          )
+          .join('');
+        return `
+      <details class="check-item ${cls} expandable">
+        <summary><span class="mark">${mark}</span><span class="check-summary-text"><strong>${esc(c.title)}</strong> ${esc(c.description)}</span></summary>
+        <ul class="check-detail">${rows}</ul>
+      </details>`;
+      }
+      return `
+      <div class="check-item ${cls}"><span class="mark">${mark}</span><p><strong>${esc(c.title)}</strong> ${esc(c.description)}</p></div>`;
+    })
     .join('');
 }
 
@@ -211,7 +226,7 @@ export function renderDashboardBody(audit, formMeta) {
   <section>
     <div class="sec-head"><span class="idx">04</span><h2>Content development plan</h2></div>
     <p class="sec-intro">Page-by-page targets, pulled from the actual query gaps above rather than generic keyword guesses. Fields are editable — refine before exporting.</p>
-    ${renderPlanCards(contentPlan)}
+    ${renderPlanCards(contentPlan, audit.contentGapStats)}
   </section>
 
   <section>
