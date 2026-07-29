@@ -10,6 +10,7 @@
   --steel:#48585F;
   --steel-soft:#7C8B90;
   --accent:#A2793C;
+  --accent-text:#7D5B28;
   --critical:#7A3128;
   --line: rgba(26,23,19,0.14);
 }
@@ -35,14 +36,14 @@ header.masthead h1 em{color:var(--critical);font-style:italic;}
 
 .wrap section{margin-bottom:56px;}
 .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px;}
-.sec-head .idx{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--steel-soft);}
+.sec-head .idx{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--steel);}
 .sec-head h2{font-size:26px;}
 .sec-intro{color:var(--ink-soft);font-size:15px;max-width:680px;margin:0 0 20px;}
 
 .findings{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
 .finding{background:var(--card);border:1px solid var(--line);padding:20px;}
 .finding .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;display:inline-block;margin-bottom:12px;border:1px solid currentColor;}
-.tag.good{color:#3E6B4F;} .tag.warn{color:var(--accent);} .tag.critical{color:var(--critical);}
+.tag.good{color:#3E6B4F;} .tag.warn{color:var(--accent-text);} .tag.critical{color:var(--critical);}
 .finding h3{font-size:17px;margin-bottom:8px;}
 .finding p{margin:0;font-size:14.5px;color:var(--ink-soft);}
 
@@ -59,13 +60,13 @@ header.masthead h1 em{color:var(--critical);font-style:italic;}
 .ticket{background:var(--card);border:1px dashed var(--ink);display:grid;grid-template-columns:90px 1fr 110px;align-items:center;position:relative;}
 .ticket::before, .ticket::after{content:"";width:16px;height:16px;background:var(--paper);border:1px dashed var(--ink);border-radius:50%;position:absolute;top:50%;transform:translateY(-50%);}
 .ticket::before{left:-9px;} .ticket::after{right:-9px;}
-.ticket .num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;text-align:center;border-right:1px dashed var(--ink);padding:18px 0;color:var(--steel-soft);}
+.ticket .num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;text-align:center;border-right:1px dashed var(--ink);padding:18px 0;color:var(--steel);}
 .ticket .body{padding:16px 20px;}
 .ticket .body h3{font-size:16px;margin-bottom:5px;}
 .ticket .body p{margin:0;font-size:13.5px;color:var(--ink-soft);}
 .ticket .stamp{justify-self:end;margin-right:18px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border:2px solid var(--critical);color:var(--critical);transform:rotate(3deg);}
-.stamp.next{border-color:var(--accent);color:var(--accent);transform:rotate(-2deg);}
-.stamp.later{border-color:var(--steel-soft);color:var(--steel-soft);transform:rotate(2deg);}
+.stamp.next{border-color:var(--accent);color:var(--accent-text);transform:rotate(-2deg);}
+.stamp.later{border-color:var(--steel-soft);color:var(--steel);transform:rotate(2deg);}
 
 .plan-card{border:1px solid var(--ink);margin-bottom:16px;}
 .plan-head{background:var(--ink);color:var(--paper);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
