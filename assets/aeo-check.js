@@ -111,8 +111,14 @@ Respond with ONLY a JSON object, no other text, in exactly this shape:
     },
     body: JSON.stringify({
       model,
-      max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1024,
+      // Prefilling the assistant turn with "{" stops Claude from adding any
+      // preamble before the JSON — the response picks up mid-object, so we
+      // stitch the "{" back on before parsing.
+      messages: [
+        { role: 'user', content: prompt },
+        { role: 'assistant', content: '{' },
+      ],
     }),
   });
 
@@ -128,10 +134,22 @@ Respond with ONLY a JSON object, no other text, in exactly this shape:
   }
 
   const data = await res.json();
-  const raw = data.content?.[0]?.text || '';
+  const raw = `{${data.content?.[0]?.text || ''}`;
+
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error("Claude's response was cut off before finishing (page content likely too long) — try pasting just the main visible text instead of the full page HTML.");
+  }
+
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Could not parse a JSON response from Claude.');
-  const analysis = JSON.parse(jsonMatch[0]);
+  if (!jsonMatch) {
+    throw new Error(`Could not find a JSON object in Claude's response. It started with: ${raw.slice(0, 150)}`);
+  }
+  let analysis;
+  try {
+    analysis = JSON.parse(jsonMatch[0]);
+  } catch (err) {
+    throw new Error(`Claude's response wasn't valid JSON (${err.message}). It started with: ${raw.slice(0, 150)}`);
+  }
 
   return { schema, analysis };
 }
