@@ -1,0 +1,121 @@
+{
+  "site_slug": "25thstreetbarbers",
+  "site_name": "Barbers on 25th",
+  "audits": [
+    {
+      "date": "2026-07-31",
+      "items": [
+        {
+          "id": "sitemap-submission",
+          "title": "Submit an XML sitemap",
+          "type": "technical",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"sitemap_data_found": false},
+          "current": {"sitemap_data_found": false},
+          "status": "open"
+        },
+        {
+          "id": "homepage-meta-description",
+          "title": "Add a meta description to the homepage",
+          "type": "on-page",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"meta_description_present": false},
+          "current": {"meta_description_present": false},
+          "status": "open"
+        },
+        {
+          "id": "gbp-optimization",
+          "title": "Optimize Google Business Profile to convert #1 rankings into clicks",
+          "type": "technical",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"zero_click_top3_queries": 29, "non_branded_clicks": 1, "non_branded_impressions": 422},
+          "current": {"zero_click_top3_queries": 29, "non_branded_clicks": 1, "non_branded_impressions": 422},
+          "status": "open"
+        },
+        {
+          "id": "homepage-h1-verification",
+          "title": "Visually verify homepage H1 spacing",
+          "type": "on-page",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"h1_extracted": "The Art ofThe PerfectCut."},
+          "current": {"h1_extracted": "The Art ofThe PerfectCut."},
+          "status": "open"
+        },
+        {
+          "id": "ga4-tracking-confirmation",
+          "title": "Confirm GA4 installation/tracking",
+          "type": "technical",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"days_with_data": 2, "days_requested": 92},
+          "current": {"days_with_data": 2, "days_requested": 92},
+          "status": "open"
+        },
+        {
+          "id": "page-mens-haircuts-kips-bay",
+          "title": "Men's Haircuts in Kips Bay page",
+          "type": "content",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": "mens haircuts near me",
+          "baseline": {"position": 1.0, "impressions": 34, "clicks": 0},
+          "current": {"position": 1.0, "impressions": 34, "clicks": 0},
+          "status": "open"
+        },
+        {
+          "id": "page-walk-ins-welcome",
+          "title": "Walk-Ins Welcome page",
+          "type": "content",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": "barbershop near me",
+          "baseline": {"position": 6.68, "impressions": 37, "clicks": 0},
+          "current": {"position": 6.68, "impressions": 37, "clicks": 0},
+          "status": "open"
+        },
+        {
+          "id": "page-murray-hill-barbershop",
+          "title": "Murray Hill neighborhood page",
+          "type": "content",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": "murray hill barbershop",
+          "baseline": {"position": 11.0, "impressions": 2, "clicks": 0},
+          "current": {"position": 11.0, "impressions": 2, "clicks": 0},
+          "status": "open"
+        },
+        {
+          "id": "page-pricing-faq",
+          "title": "Pricing & FAQ page",
+          "type": "aeo",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"schema_present": false},
+          "current": {"schema_present": false},
+          "status": "open"
+        },
+        {
+          "id": "aeo-customer-language-match",
+          "title": "Homepage copy matches customer search language",
+          "type": "aeo",
+          "date_recommended": "2026-07-31",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"assessment": "marketing register ('Premium Men's Grooming') vs. actual top queries ('haircut', 'barbershop', 'near me')"},
+          "current": {"assessment": "marketing register ('Premium Men's Grooming') vs. actual top queries ('haircut', 'barbershop', 'near me')"},
+          "status": "open"
+        }
+      ]
+    }
+  ]
+}
