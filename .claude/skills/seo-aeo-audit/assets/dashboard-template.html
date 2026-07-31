@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search &amp; Answer Engine Audit — {{SITE_NAME}}</title>
+<!--
+  HOW TO USE THIS TEMPLATE
+  ------------------------
+  Replace every {{PLACEHOLDER}} with real data from the audit (see SKILL.md steps 3-6).
+  Repeat the .finding, .ticket, and .plan-card blocks as needed — they are not fixed in count.
+  Delete the "#1 rank / 0 clicks" table section entirely if that pattern doesn't apply to this site.
+  Delete or rewrite the GA4 section based on actual data availability (full data / early data / no data / not connected).
+  Choose a color palette and two typefaces (one display, one for body/data) that suit the client's
+  brand/industry rather than reusing the same look for every audit — swap the CSS variables below.
+  Each plan-card links to a full content draft file (see SKILL.md step 9) rather than embedding the
+  draft text here — keep the dashboard a scannable overview, present draft files alongside it.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Swap these per client/brand */
+    --ink:#1A1713;
+    --ink-soft:#3E372E;
+    --paper:#E6DFCE;
+    --paper-2:#DCD3BC;
+    --card:#F1ECDE;
+    --steel:#48585F;
+    --steel-soft:#7C8B90;
+    --accent:#A2793C;      /* "good progress / next" accent */
+    --critical:#7A3128;    /* "action needed / flag" accent */
+    --line: rgba(26,23,19,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans', sans-serif;line-height:1.5;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px 100px;}
+  h1,h2,h3{font-family:'Fraunces', serif;font-weight:500;margin:0;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  header.masthead{border-bottom:3px solid var(--ink);padding:36px 0 22px;margin-bottom:34px;}
+  .eyebrow{font-family:'IBM Plex Mono', monospace;font-size:11.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--steel);display:flex;gap:10px;align-items:center;margin-bottom:14px;}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--critical);display:inline-block;}
+  header.masthead h1{font-size:44px;line-height:1.05;letter-spacing:-0.01em;}
+  header.masthead h1 em{color:var(--critical);font-style:italic;}
+  .sub-meta{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-top:18px;}
+  .sub-meta p{margin:0;color:var(--ink-soft);font-size:15px;max-width:520px;}
+  .range-tag{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--ink);padding:6px 12px;white-space:nowrap;}
+
+  .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ink);margin-bottom:48px;}
+  .stat{padding:20px 18px;border-right:1px solid var(--ink);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;line-height:1;}
+  .stat .num.flag{color:var(--critical);}
+  .stat .label{font-size:12px;color:var(--ink-soft);margin-top:8px;text-transform:uppercase;letter-spacing:0.05em;}
+
+  section{margin-bottom:56px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px;}
+  .sec-head .idx{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--steel-soft);}
+  .sec-head h2{font-size:26px;}
+  .sec-intro{color:var(--ink-soft);font-size:15px;max-width:680px;margin:0 0 20px;}
+
+  .findings{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .finding{background:var(--card);border:1px solid var(--line);padding:20px;}
+  .finding .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;display:inline-block;margin-bottom:12px;border:1px solid currentColor;}
+  .tag.good{color:#3E6B4F;} .tag.warn{color:var(--accent);} .tag.critical{color:var(--critical);}
+  .finding h3{font-size:17px;margin-bottom:8px;}
+  .finding p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+
+  .rank-table{width:100%;border-collapse:collapse;font-size:14px;}
+  .rank-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--steel);border-bottom:1px solid var(--ink);padding:8px 10px;}
+  .rank-table td{padding:9px 10px;border-bottom:1px solid var(--line);}
+  .rank-table tr:last-child td{border-bottom:none;}
+  .rank-table td.num, .rank-table th.num{font-family:'IBM Plex Mono',monospace;text-align:right;}
+  .rank-table td.zero{color:var(--critical);font-weight:600;font-family:'IBM Plex Mono',monospace;text-align:right;}
+  .pos-pill{font-family:'IBM Plex Mono',monospace;background:var(--ink);color:var(--paper);padding:1px 8px;font-size:12px;}
+  .table-note{font-size:13px;color:var(--steel);margin-top:12px;}
+
+  .queue{display:flex;flex-direction:column;gap:14px;}
+  .ticket{background:var(--card);border:1px dashed var(--ink);display:grid;grid-template-columns:90px 1fr 110px;align-items:center;position:relative;}
+  .ticket::before, .ticket::after{content:"";width:16px;height:16px;background:var(--paper);border:1px dashed var(--ink);border-radius:50%;position:absolute;top:50%;transform:translateY(-50%);}
+  .ticket::before{left:-9px;} .ticket::after{right:-9px;}
+  .ticket .num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;text-align:center;border-right:1px dashed var(--ink);padding:18px 0;color:var(--steel-soft);}
+  .ticket .body{padding:16px 20px;}
+  .ticket .body h3{font-size:16px;margin-bottom:5px;}
+  .ticket .body p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+  .ticket .stamp{justify-self:end;margin-right:18px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border:2px solid var(--critical);color:var(--critical);transform:rotate(3deg);}
+  .stamp.next{border-color:var(--accent);color:var(--accent);transform:rotate(-2deg);}
+  .stamp.later{border-color:var(--steel-soft);color:var(--steel-soft);transform:rotate(2deg);}
+
+  .plan-card{border:1px solid var(--ink);margin-bottom:16px;}
+  .plan-head{background:var(--ink);color:var(--paper);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  .plan-head .url{font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .plan-head .status{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;padding:2px 8px;border:1px solid var(--paper-2);}
+  .plan-body{padding:18px;background:var(--card);}
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .plan-grid h4{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 8px;}
+  .plan-grid ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink-soft);}
+  .plan-grid li{margin-bottom:4px;}
+  .kw-chip{display:inline-block;background:var(--paper-2);border:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:2px 8px;margin:0 6px 6px 0;}
+
+  .checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .check-item{display:flex;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--line);}
+  .check-item .mark{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;flex-shrink:0;}
+  .check-item.done .mark{color:#3E6B4F;} .check-item.todo .mark{color:var(--critical);}
+  .check-item p{margin:0;font-size:14px;color:var(--ink-soft);}
+  .check-item strong{color:var(--ink);}
+
+  .ga4-banner{border:1px solid var(--accent);background:var(--card);padding:20px 22px;display:flex;gap:18px;align-items:center;}
+  .ga4-banner .pulse{width:12px;height:12px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(162,121,60,0.5);}70%{box-shadow:0 0 0 10px rgba(162,121,60,0);}100%{box-shadow:0 0 0 0 rgba(162,121,60,0);}}
+  .ga4-banner p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+  .ga4-banner strong{color:var(--ink);}
+
+  footer{border-top:1px solid var(--ink);padding-top:20px;font-size:12.5px;color:var(--steel);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  @media (max-width:720px){
+    .stat-strip{grid-template-columns:repeat(2,1fr);}
+    .stat:nth-child(2){border-right:none;}
+    .findings, .plan-grid, .checklist{grid-template-columns:1fr;}
+    .ticket{grid-template-columns:60px 1fr;}
+    .ticket .stamp{grid-column:1/-1;justify-self:start;margin:0 18px 14px;}
+    header.masthead h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow"><span class="dot"></span>{{SITE_NAME}} · {{SITE_LOCATION_OR_CATEGORY}}</div>
+    <h1>Search &amp; Answer Engine <em>Audit.</em></h1>
+    <div class="sub-meta">
+      <p>Live findings from Google Search Console and GA4, translated into a prioritized fix queue and a page-by-page content plan.</p>
+      <div class="range-tag">{{DATE_RANGE}}</div>
+    </div>
+  </header>
+
+  <!-- Pick the 4 most decision-relevant stats for this site. Common choices: total clicks,
+       total impressions, non-branded clicks (flag if 0), pages indexed vs total pages. -->
+  <div class="stat-strip">
+    <div class="stat"><div class="num">{{STAT_1_VALUE}}</div><div class="label">{{STAT_1_LABEL}}</div></div>
+    <div class="stat"><div class="num">{{STAT_2_VALUE}}</div><div class="label">{{STAT_2_LABEL}}</div></div>
+    <div class="stat"><div class="num {{STAT_3_FLAG_CLASS}}">{{STAT_3_VALUE}}</div><div class="label">{{STAT_3_LABEL}}</div></div>
+    <div class="stat"><div class="num {{STAT_4_FLAG_CLASS}}">{{STAT_4_VALUE}}</div><div class="label">{{STAT_4_LABEL}}</div></div>
+  </div>
+
+  <!-- DELETE this whole section on a first-ever audit (no prior history to compare against).
+       tag classes: good (improved), warn (too early to judge), critical (stalled — needs a different approach) -->
+  <section>
+    <div class="sec-head"><span class="idx">00</span><h2>Progress since last audit</h2></div>
+    <p class="sec-intro">{{PROGRESS_INTRO_NOTE}}</p>
+    <div class="findings">
+      <div class="finding">
+        <span class="tag {{PROGRESS_TAG_CLASS}}">{{PROGRESS_TAG_LABEL}}</span>
+        <h3>{{PROGRESS_ITEM_TITLE}}</h3>
+        <p>{{PROGRESS_ITEM_DESCRIPTION}}</p>
+      </div>
+      <!-- repeat one .finding per tracked item from history -->
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">01</span><h2>What the data shows</h2></div>
+    <!-- One .finding card per major finding. tag class: good / warn / critical -->
+    <div class="findings">
+      <div class="finding">
+        <span class="tag {{TAG_CLASS}}">{{TAG_LABEL}}</span>
+        <h3>{{FINDING_TITLE}}</h3>
+        <p>{{FINDING_DESCRIPTION}}</p>
+      </div>
+      <!-- repeat .finding blocks -->
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">02</span><h2>On-page technical scan</h2></div>
+    <p class="sec-intro">Title tags, meta descriptions, headings, and content depth — checked directly, not estimated. Rows marked "unverifiable" mean the access method used couldn't confirm that item; see the note below.</p>
+    <table class="rank-table">
+      <thead>
+        <tr><th>Page</th><th>Title tag</th><th>Meta description</th><th>H1</th><th class="num">Word count</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">{{PAGE_URL}}</td><td>{{TITLE_TAG_STATUS}}</td><td>{{META_DESC_STATUS}}</td><td>{{H1_STATUS}}</td><td class="num">{{WORD_COUNT}}</td></tr>
+        <!-- repeat rows, one per scanned page -->
+      </tbody>
+    </table>
+    <p class="table-note">{{ON_PAGE_ACCESS_NOTE}}</p>
+  </section>
+
+  <!-- DELETE this whole section if the #1-rank/0-click pattern doesn't apply to this site -->
+  <section>
+    <div class="sec-head"><span class="idx">03</span><h2>#1 rankings, zero clicks</h2></div>
+    <p class="sec-intro">These queries already place {{SITE_NAME}} at the top of Google — but the click-through is going somewhere else, almost certainly the Local Pack / Google Maps panel, which sits above organic results for "near me" searches and often fully satisfies the searcher before they ever reach a website.</p>
+    <table class="rank-table">
+      <thead><tr><th>Query</th><th class="num">Impr.</th><th class="num">Position</th><th class="num">Clicks</th></tr></thead>
+      <tbody>
+        <tr><td>{{QUERY}}</td><td class="num">{{IMPR}}</td><td class="num"><span class="pos-pill">{{POSITION}}</span></td><td class="zero">{{CLICKS}}</td></tr>
+        <!-- repeat rows -->
+      </tbody>
+    </table>
+    <p class="table-note">{{ZERO_CLICK_SUMMARY_NOTE}}</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">04</span><h2>Priority queue</h2></div>
+    <p class="sec-intro">Ordered by impact and effort. NOW items are low-effort, high-impact; NEXT builds content depth; LATER compounds over time.</p>
+    <div class="queue">
+      <!-- repeat .ticket blocks, numbering 001, 002... stamp class: (none)=Now, "next", "later" -->
+      <div class="ticket">
+        <div class="num">{{TICKET_NUM}}</div>
+        <div class="body"><h3>{{TICKET_TITLE}}</h3><p>{{TICKET_DESCRIPTION}}</p></div>
+        <div class="stamp {{STAMP_CLASS}}">{{STAMP_LABEL}}</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">05</span><h2>Content development plan</h2></div>
+    <p class="sec-intro">Page-by-page targets, pulled from the actual query gaps above rather than generic keyword guesses.</p>
+    <!-- repeat .plan-card blocks, one per existing or proposed page/post -->
+    <div class="plan-card">
+      <div class="plan-head"><span class="url">{{PAGE_URL}}</span><span class="status">{{PAGE_STATUS}} · {{TIMELINE_SLOT}}</span></div>
+      <div class="plan-body">
+        <div class="plan-grid">
+          <div><h4>Fix / Why</h4><ul><li>{{FIX_ITEM}}</li></ul></div>
+          <div><h4>Target queries</h4><div><span class="kw-chip">{{KEYWORD}}</span></div></div>
+        </div>
+        <div style="margin-top:14px;">
+          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Full draft</h4>
+          <p style="font-size:14px;margin:0;"><span class="mono">{{DRAFT_FILENAME}}</span> — {{DRAFT_STATUS_NOTE}}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">06</span><h2>AEO readiness</h2></div>
+    <p class="sec-intro">How AI answer engines (Google AI Overviews, ChatGPT, Perplexity) would currently read this site.</p>
+    <!-- check-item class: done (✓) or todo (＋). Remember: FAQ rich results were retired May 2026 —
+         frame schema recommendations around AI-answer parsing, not SERP dropdowns. -->
+    <div class="checklist">
+      <div class="check-item {{DONE_OR_TODO}}"><span class="mark">{{MARK}}</span><p><strong>{{AEO_ITEM_TITLE}}</strong> {{AEO_ITEM_DESCRIPTION}}</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">07</span><h2>GA4 signal</h2></div>
+    <!-- Rewrite this whole section based on actual GA4 availability: full trend data,
+         early/thin data (label clearly as not-yet-a-trend), or no data (explain the 3 possible causes
+         from SKILL.md step 4) -->
+    <p class="sec-intro">{{GA4_CONTEXT_NOTE}}</p>
+    <div class="ga4-banner" style="margin-bottom:20px;">
+      <div class="pulse"></div>
+      <p>{{GA4_HEADLINE_FINDING}}</p>
+    </div>
+    <table class="rank-table">
+      <thead><tr><th>Channel</th><th>Landing page</th><th class="num">Sessions</th><th class="num">Avg. duration</th></tr></thead>
+      <tbody>
+        <tr><td>{{CHANNEL}}</td><td class="mono">{{LANDING_PAGE}}</td><td class="num">{{SESSIONS}}</td><td class="num">{{DURATION}}</td></tr>
+      </tbody>
+    </table>
+    <p class="table-note">{{GA4_ADDITIONAL_NOTE}}</p>
+  </section>
+
+  <footer>
+    <span>{{GSC_PROPERTY}} · GA4: {{GA4_PROPERTY}}</span>
+    <span>Generated from live Search Console and GA4 data</span>
+  </footer>
+
+</div>
+</body>
+</html>
