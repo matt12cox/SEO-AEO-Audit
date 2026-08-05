@@ -121,39 +121,66 @@
     <h1>Search &amp; Answer Engine <em>Audit.</em></h1>
     <div class="sub-meta">
       <p>Live findings from Google Search Console and GA4, translated into a prioritized fix queue and a page-by-page content plan.</p>
-      <div class="range-tag">Apr 29 – Jul 29, 2026 (3 months)</div>
+      <div class="range-tag">May 4 – Aug 2, 2026 (3 months)</div>
     </div>
   </header>
 
   <div class="stat-strip">
-    <div class="stat"><div class="num">30</div><div class="label">Total Clicks</div></div>
-    <div class="stat"><div class="num">720</div><div class="label">Total Impressions</div></div>
+    <div class="stat"><div class="num">38</div><div class="label">Total Clicks</div></div>
+    <div class="stat"><div class="num">1,028</div><div class="label">Total Impressions</div></div>
     <div class="stat"><div class="num flag">1</div><div class="label">Non-Branded Clicks</div></div>
-    <div class="stat"><div class="num">5.8</div><div class="label">Avg. Position</div></div>
+    <div class="stat"><div class="num">7.1</div><div class="label">Avg. Position</div></div>
   </div>
+
+  <section>
+    <div class="sec-head"><span class="idx">00</span><h2>Progress since last audit</h2></div>
+    <p class="sec-intro">First refresh, 4 days after the initial audit (Jul 31 → Aug 4). That's well under the ~2-week window needed to judge whether any fix worked — and on-page signals below are byte-for-byte identical to the first audit, so nothing appears to have been implemented yet. This section is mostly status, not verdicts.</p>
+    <div class="findings">
+      <div class="finding">
+        <span class="tag warn">UNRESOLVED</span>
+        <h3>Sitemap: still no data, discrepancy unresolved</h3>
+        <p>You reported a sitemap was submitted. Re-verified with the widest historical range Supermetrics supports (back to 2025-04-05) and a minimal field set — still "No data found" for the connected property (sc-domain:25thstreetbarbers.com). Most likely cause: the sitemap is registered under a different GSC property (e.g. the URL-prefix property instead of the domain property) or a different Google account. Waiting on your confirmation of which property shows it.</p>
+      </div>
+      <div class="finding">
+        <span class="tag good">CONFIRMED</span>
+        <h3>GA4 tracking is real and active</h3>
+        <p>Now shows 6 consecutive days of data (Jul 28 – Aug 2), up from 2 days in the first audit. This confirms the "just installed" theory over "broken tracking" or "wrong property" — data coverage is expanding day by day as expected.</p>
+      </div>
+      <div class="finding">
+        <span class="tag warn">NOT YET ACTIONED</span>
+        <h3>On-page findings unchanged</h3>
+        <p>Title tag, H1, meta description, and canonical are identical to the first audit — meta description is still empty, the H1 spacing artifact is still there. No evidence any on-page fix has shipped yet.</p>
+      </div>
+      <div class="finding">
+        <span class="tag critical">UNCHANGED</span>
+        <h3>Non-branded clicks still stuck at 1</h3>
+        <p>585 non-branded impressions this window (up from 422, as the date window shifted forward), still exactly 1 click. Consistent with the Local Pack cannibalization finding — no GBP work appears to have happened yet either.</p>
+      </div>
+    </div>
+  </section>
 
   <section>
     <div class="sec-head"><span class="idx">01</span><h2>What the data shows</h2></div>
     <div class="findings">
       <div class="finding">
         <span class="tag critical">CRITICAL</span>
-        <h3>422 non-branded impressions, 1 click</h3>
-        <p>Of 720 total impressions, 422 came from non-branded ("near me," "haircut," "barbershop") searches — but only a single one converted to a click across the full 3 months. This isn't a ranking problem: see below.</p>
+        <h3>585 non-branded impressions, 1 click</h3>
+        <p>Of 1,028 total impressions, 585 came from non-branded ("near me," "haircut," "barbershop") searches — still only a single click across the window. This isn't a ranking problem: see below.</p>
       </div>
       <div class="finding">
         <span class="tag critical">CRITICAL</span>
-        <h3>29 queries rank #1–3 with zero clicks</h3>
+        <h3>28 queries rank #1–3 with zero clicks</h3>
         <p>This is not a ranking failure — it's the Google Local Pack / Maps panel absorbing the click before the searcher ever reaches an organic result. Industry data backs this exactly: ~86% of Google Business Profile impressions come from category searches like "barber near me," and the 3 Local Pack listings capture nearly all of that intent before organic results are seen.</p>
       </div>
       <div class="finding">
-        <span class="tag critical">CRITICAL</span>
-        <h3>No sitemap submitted</h3>
-        <p>Search Console returned no sitemap data for this property — no XML sitemap has ever been submitted. Fast, low-effort fix.</p>
+        <span class="tag warn">UNRESOLVED</span>
+        <h3>Sitemap discrepancy — see Progress section above</h3>
+        <p>Search Console still returns no sitemap data for the connected property, even re-checked against the maximum historical range. You report a sitemap was submitted — most likely a different GSC property/account than the one connected here. Not treating this as a confirmed "missing sitemap" until resolved.</p>
       </div>
       <div class="finding">
         <span class="tag warn">WARN</span>
         <h3>Effectively a single-page site</h3>
-        <p>Confirmed two ways: Search Console shows only the homepage (plus in-page anchors #about/#info/#services), and a site: search shows only one indexed URL. There is no dedicated page for any specific service or neighborhood — everything routes to the homepage.</p>
+        <p>Confirmed two ways: Search Console shows only the homepage (plus in-page anchors #about/#info/#services), and a site: search shows only one indexed URL. GA4 now shows a "/services" landing page, but this most likely reflects GA4 stripping the "#services" anchor fragment rather than a genuinely new page — not confirmed as new.</p>
       </div>
     </div>
   </section>
@@ -175,7 +202,7 @@
         </tr>
       </tbody>
     </table>
-    <p class="table-note">Direct fetch of the live site returned HTTP 403 (bot-blocked) on two attempts, so word count, heading hierarchy beyond H1, internal linking, image alt text, and structured data (schema) could not be checked this run — they are not reported as pass or fail. Canonical tag is present and correctly self-referential (https://25thstreetbarbers.com/). Google's displayed SERP title ("Barbers on 25th | Premium Men's Grooming · Kips Bay, NYC") differs slightly from the raw title tag above — Google is rewriting it, which is common but worth knowing.</p>
+    <p class="table-note">Identical to the first audit — title, H1, meta description, and canonical are all byte-for-byte unchanged, consistent with no on-page fixes having shipped yet. Direct fetch of the live site again returned HTTP 403 (bot-blocked), so word count, heading hierarchy beyond H1, internal linking, image alt text, and structured data (schema) still could not be checked. Canonical tag remains present and correctly self-referential (https://25thstreetbarbers.com/).</p>
   </section>
 
   <section>
@@ -184,10 +211,9 @@
     <table class="rank-table">
       <thead><tr><th>Query</th><th class="num">Impr.</th><th class="num">Position</th><th class="num">Clicks</th></tr></thead>
       <tbody>
-        <tr><td>haircut near me</td><td class="num">36</td><td class="num"><span class="pos-pill">2.5</span></td><td class="zero">0</td></tr>
-        <tr><td>barbershops near me</td><td class="num">35</td><td class="num"><span class="pos-pill">1.2</span></td><td class="zero">0</td></tr>
-        <tr><td>mens haircuts near me</td><td class="num">34</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
-        <tr><td>mens barber near me</td><td class="num">30</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
+        <tr><td>mens haircuts near me</td><td class="num">43</td><td class="num"><span class="pos-pill">1.9</span></td><td class="zero">0</td></tr>
+        <tr><td>mens barber near me</td><td class="num">37</td><td class="num"><span class="pos-pill">2.0</span></td><td class="zero">0</td></tr>
+        <tr><td>barbershops near me</td><td class="num">36</td><td class="num"><span class="pos-pill">1.3</span></td><td class="zero">0</td></tr>
         <tr><td>barber shop near me for men</td><td class="num">29</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
         <tr><td>haircut men near me</td><td class="num">28</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
         <tr><td>barber close to me</td><td class="num">23</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
@@ -196,7 +222,7 @@
         <tr><td>barber near me open now</td><td class="num">6</td><td class="num"><span class="pos-pill">1.0</span></td><td class="zero">0</td></tr>
       </tbody>
     </table>
-    <p class="table-note">29 queries total show this pattern in the selected date range (top 10 by impressions shown). Notably, "barbershop near me" (37 impressions, the single highest-impression query on the site) also converts zero clicks at position 6.7 — just outside this table's position≤3 cutoff, but the same underlying problem: high-intent demand not reaching the site.</p>
+    <p class="table-note">28 queries total show this pattern in the selected date range (top 9 by impressions shown). "haircut near me" (48 impressions, still 0 clicks) drifted from position 2.5 to 3.1, just crossing above this table's strict position≤3 cutoff — still the same problem, not an improvement. "barbershop near me" (44 impressions, the single highest-impression query on the site) still converts zero clicks at position 6.9.</p>
   </section>
 
   <section>
@@ -205,52 +231,47 @@
     <div class="queue">
       <div class="ticket">
         <div class="num">001</div>
-        <div class="body"><h3>Submit an XML sitemap</h3><p>No sitemap currently on file with Search Console — a fast, low-effort fix that speeds up indexing of everything else below.</p></div>
+        <div class="body"><h3>Resolve the sitemap property discrepancy</h3><p>You report a sitemap was submitted; Search Console still shows none for the connected property (sc-domain:25thstreetbarbers.com) even at maximum historical range. Check the property selector on Search Console's Sitemaps page — if it's under a URL-prefix property or a different Google account, either resubmit under sc-domain:25thstreetbarbers.com or reconnect the correct property in Supermetrics.</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
         <div class="num">002</div>
-        <div class="body"><h3>Add a meta description to the homepage</h3><p>Confirmed empty via direct tag extraction. Write one under 155 characters that reflects actual search language ("haircuts," "barbershop") alongside the brand voice.</p></div>
+        <div class="body"><h3>Add a meta description to the homepage</h3><p>Still confirmed empty — unchanged since the first audit. Write one under 155 characters that reflects actual search language ("haircuts," "barbershop") alongside the brand voice.</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
         <div class="num">003</div>
-        <div class="body"><h3>Optimize the Google Business Profile listing</h3><p>This is the highest-leverage fix on this list: 29 queries already rank #1–3 organically with zero clicks, almost certainly lost to the Local Pack. Add/refresh photos, actively request reviews, confirm categories match "barbershop"/"men's haircut," and make sure name/address/phone match exactly across the web and the site.</p></div>
+        <div class="body"><h3>Optimize the Google Business Profile listing</h3><p>Still the highest-leverage fix: 28 queries rank #1–3 organically with zero clicks, almost certainly lost to the Local Pack — and non-branded clicks are unchanged at 1 since the first audit. Add/refresh photos, actively request reviews, confirm categories match "barbershop"/"men's haircut," and make sure name/address/phone match exactly across the web and the site.</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
         <div class="num">004</div>
-        <div class="body"><h3>Visually verify the homepage H1</h3><p>Tag extraction returned "The Art ofThe PerfectCut." with no spaces between words. Confirm whether the live page actually renders this correctly (likely just an extraction artifact) or if the markup itself is missing whitespace.</p></div>
+        <div class="body"><h3>Visually verify the homepage H1</h3><p>Still extracted as "The Art ofThe PerfectCut." with no spaces — unchanged since the first audit. Confirm whether the live page actually renders this correctly or if the markup itself is missing whitespace.</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
         <div class="num">005</div>
-        <div class="body"><h3>Confirm GA4 is actually installed and tracking</h3><p>Only 2 of the 92 requested days returned any GA4 data. Confirm with whoever manages the site whether tracking was installed in just the last few days, or whether the wrong property/tag is connected.</p></div>
-        <div class="stamp">Now</div>
+        <div class="body"><h3>Publish "Men's Haircuts in Kips Bay"</h3><p>Targets the single largest query cluster (mens haircuts near me, mens barber near me, haircut men near me — 108 combined impressions). Draft ready in content-drafts/mens-haircuts-kips-bay.md.</p></div>
+        <div class="stamp next">Next</div>
       </div>
       <div class="ticket">
         <div class="num">006</div>
-        <div class="body"><h3>Publish "Men's Haircuts in Kips Bay"</h3><p>Targets the single largest query cluster (haircut near me, mens haircuts near me, mens barber near me — 147 combined impressions). Draft ready in content-drafts/mens-haircuts-kips-bay.md.</p></div>
+        <div class="body"><h3>Publish "Walk-Ins Welcome"</h3><p>Targets the immediacy/hours cluster (barbershops near me, barber close to me, male barber shop near me, barber near me open now — 86 combined impressions). Draft ready in content-drafts/walk-ins-welcome.md.</p></div>
         <div class="stamp next">Next</div>
       </div>
       <div class="ticket">
         <div class="num">007</div>
-        <div class="body"><h3>Publish "Walk-Ins Welcome"</h3><p>Targets the immediacy/hours cluster (barbershops near me, barber close to me, male barber shop near me, barber near me open now — 89 combined impressions). Draft ready in content-drafts/walk-ins-welcome.md.</p></div>
-        <div class="stamp next">Next</div>
-      </div>
-      <div class="ticket">
-        <div class="num">008</div>
         <div class="body"><h3>Publish a Murray Hill neighborhood page</h3><p>Smaller individual volume but a distinct, real cluster (barber murray hill, murray hill barbershop). Draft ready in content-drafts/murray-hill-barbershop.md.</p></div>
         <div class="stamp later">Later</div>
       </div>
       <div class="ticket">
-        <div class="num">009</div>
+        <div class="num">008</div>
         <div class="body"><h3>Publish a Pricing &amp; FAQ page</h3><p>Not tied to a single high-volume query — built for AI-answer-engine citability and to address what customers actually ask before booking (pricing transparency, what's included). FAQPage-schema-ready. Draft ready in content-drafts/pricing-faq.md.</p></div>
         <div class="stamp later">Later</div>
       </div>
       <div class="ticket">
-        <div class="num">010</div>
-        <div class="body"><h3>Re-run this audit in 2–4 weeks</h3><p>Check whether the GBP fix and new pages move any of the 29 zero-click #1 queries into actual clicks before adding further recommendations.</p></div>
+        <div class="num">009</div>
+        <div class="body"><h3>Re-run this audit again in 2+ weeks</h3><p>4 days isn't enough to judge any fix. Once the sitemap, meta description, H1, and GBP items above are actually implemented, wait at least 2 weeks before expecting movement in the zero-click #1 queries.</p></div>
         <div class="stamp later">Later</div>
       </div>
     </div>
@@ -264,7 +285,7 @@
       <div class="plan-head"><span class="url">/mens-haircuts-kips-bay</span><span class="status">Proposed · Week 1</span></div>
       <div class="plan-body">
         <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Largest query cluster on the site (147 combined impressions across 5 related queries), all ranking #1–3 with 0 clicks. A dedicated page adds the depth and specificity (pricing, consult process, fade/taper explanation) a bare homepage can't.</li></ul></div>
+          <div><h4>Fix / Why</h4><ul><li>Largest query cluster on the site (175 combined impressions across 5 related queries), all ranking #1–3 with 0 clicks. A dedicated page adds the depth and specificity (pricing, consult process, fade/taper explanation) a bare homepage can't.</li></ul></div>
           <div><h4>Target queries</h4><div>
             <span class="kw-chip">mens haircuts near me</span>
             <span class="kw-chip">haircut near me</span>
@@ -284,7 +305,7 @@
       <div class="plan-head"><span class="url">/walk-ins-welcome</span><span class="status">Proposed · Week 3</span></div>
       <div class="plan-body">
         <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Second-largest cluster (89 combined impressions), all immediacy-intent ("close to me," "open now"). A page confirming hours/walk-in policy directly answers the intent behind these searches.</li></ul></div>
+          <div><h4>Fix / Why</h4><ul><li>Second-largest cluster (86 combined impressions), all immediacy-intent ("close to me," "open now"). A page confirming hours/walk-in policy directly answers the intent behind these searches.</li></ul></div>
           <div><h4>Target queries</h4><div>
             <span class="kw-chip">barbershops near me</span>
             <span class="kw-chip">barber close to me</span>
@@ -339,8 +360,8 @@
     <div class="sec-head"><span class="idx">06</span><h2>AEO readiness</h2></div>
     <p class="sec-intro">How AI answer engines (Google AI Overviews, ChatGPT, Perplexity) would currently read this site.</p>
     <div class="checklist">
-      <div class="check-item todo"><span class="mark">+</span><p><strong>Sitemap submitted.</strong> Not yet — see priority queue item 001.</p></div>
-      <div class="check-item todo"><span class="mark">+</span><p><strong>Non-branded discovery traffic exists.</strong> 1 click from 422 non-branded impressions in 3 months.</p></div>
+      <div class="check-item todo"><span class="mark">+</span><p><strong>Sitemap submitted.</strong> Unresolved — you report one was submitted, but it doesn't show under the connected property. See priority queue item 001.</p></div>
+      <div class="check-item todo"><span class="mark">+</span><p><strong>Non-branded discovery traffic exists.</strong> 1 click from 585 non-branded impressions in 3 months — unchanged since the first audit.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>Meta description present.</strong> Confirmed empty on the homepage.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>H1 clean and unambiguous.</strong> Extracted as "The Art ofThe PerfectCut." — needs visual confirmation the live markup has correct spacing.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>FAQPage / Service / LocalBusiness schema.</strong> Unverifiable this run (direct fetch blocked, 403). Note: valuable for AI-answer-engine parsing, not the retired FAQ rich-result dropdown from May 2026.</p></div>
@@ -350,25 +371,27 @@
 
   <section>
     <div class="sec-head"><span class="idx">07</span><h2>GA4 signal</h2></div>
-    <p class="sec-intro">Early signal, not a trend: only 2 of the 92 requested days returned any data at all. Treat everything below as a snapshot of the last two days, not 3-month behavior — and confirm install date/property before relying on it (see priority queue item 005).</p>
+    <p class="sec-intro">Growing signal: now 6 consecutive days of data (Jul 28 – Aug 2), up from 2 in the first audit — tracking is confirmed real and active. Still too short a window for a reliable trend; treat this as early-but-improving, not yet 3-month behavior.</p>
     <div class="ga4-banner" style="margin-bottom:20px;">
       <div class="pulse"></div>
-      <p><strong>27 sessions</strong> total across the only 2 days with data (Jul 28–29) · ~55% avg. engagement rate · 0 conversions recorded</p>
+      <p><strong>53 sessions</strong> total across 6 days with data · ~49% avg. engagement rate · ~51% bounce rate · 0 conversions recorded</p>
     </div>
     <table class="rank-table">
       <thead><tr><th>Channel</th><th>Landing page</th><th class="num">Sessions</th><th class="num">Avg. duration</th></tr></thead>
       <tbody>
-        <tr><td>Organic Search</td><td class="mono">/</td><td class="num">11</td><td class="num">5m 56s</td></tr>
-        <tr><td>Organic Social</td><td class="mono">/</td><td class="num">10</td><td class="num">0m 9s</td></tr>
-        <tr><td>Direct</td><td class="mono">/</td><td class="num">6</td><td class="num">2m 21s</td></tr>
+        <tr><td>Direct</td><td class="mono">/</td><td class="num">18</td><td class="num">1m 19s</td></tr>
+        <tr><td>Organic Search</td><td class="mono">/</td><td class="num">18</td><td class="num">4m 11s</td></tr>
+        <tr><td>Organic Social</td><td class="mono">/</td><td class="num">13</td><td class="num">0m 7s</td></tr>
+        <tr><td>Direct</td><td class="mono">/services</td><td class="num">3</td><td class="num">0m 8s</td></tr>
+        <tr><td>Organic Search</td><td class="mono">/services</td><td class="num">1</td><td class="num">0m 0s</td></tr>
       </tbody>
     </table>
-    <p class="table-note">Organic Social's 9-second average duration is worth watching once more data exists — that's consistent with quick bounces rather than engaged visits, but two days isn't enough to call it a pattern yet. All sessions land on "/" since there's only one real page on the site.</p>
+    <p class="table-note">Organic Social's ~7-second average duration is now backed by 13 sessions instead of the first audit's 10 — same bounce-heavy pattern, worth addressing once there's a dedicated landing page rather than dropping social traffic on the homepage. "/services" appearing here likely reflects GA4 stripping the "#services" anchor rather than a new page — Search Console still only shows "/#services", not a bare "/services" (see the single-page-site note above). 0 conversions recorded — worth setting up conversion tracking (e.g. booking clicks, phone clicks) if that's not configured yet.</p>
   </section>
 
   <footer>
     <span>sc-domain:25thstreetbarbers.com · GA4: Barbers on 25th (547357794)</span>
-    <span>Generated from live Search Console and GA4 data · Jul 31, 2026</span>
+    <span>Generated from live Search Console and GA4 data · Aug 4, 2026 (refresh #1)</span>
   </footer>
 
 </div>
