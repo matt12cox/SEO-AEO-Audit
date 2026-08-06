@@ -134,12 +134,17 @@
 
   <section>
     <div class="sec-head"><span class="idx">00</span><h2>Progress since last audit</h2></div>
-    <p class="sec-intro">First refresh, 4 days after the initial audit (Jul 31 → Aug 4). That's well under the ~2-week window needed to judge whether any fix worked — and on-page signals below are byte-for-byte identical to the first audit, so nothing appears to have been implemented yet. This section is mostly status, not verdicts.</p>
+    <p class="sec-intro">First refresh, 4 days after the initial audit (Jul 31 → Aug 4) — plus a correction made mid-review after the site owner supplied ground truth my connected data sources couldn't see. That's well under the ~2-week window needed to judge whether any fix worked, and on-page signals are otherwise unchanged, so nothing else appears to have been implemented yet.</p>
     <div class="findings">
       <div class="finding">
-        <span class="tag warn">UNRESOLVED</span>
-        <h3>Sitemap: still no data, discrepancy unresolved</h3>
-        <p>You reported a sitemap was submitted. Re-verified with the widest historical range Supermetrics supports (back to 2025-04-05) and a minimal field set — still "No data found" for the connected property (sc-domain:25thstreetbarbers.com). Most likely cause: the sitemap is registered under a different GSC property (e.g. the URL-prefix property instead of the domain property) or a different Google account. Waiting on your confirmation of which property shows it.</p>
+        <span class="tag good">RESOLVED</span>
+        <h3>Sitemap is submitted — confirmed via owner's GSC access</h3>
+        <p>Property switcher in the owner's own Search Console session reads "25thstreetbarbers.com" (how GSC displays a domain property, matching the one connected here) and shows a sitemap. Direct API query still returns no sitemap data even at maximum historical range and after testing the URL-prefix property explicitly (rejected as unavailable, ruling out an account mismatch) — this looks like a Supermetrics sync/caching gap specific to the Sitemaps endpoint, not incorrect data access. Treating "sitemap submitted" as fact going forward.</p>
+      </div>
+      <div class="finding">
+        <span class="tag critical">CORRECTED FINDING</span>
+        <h3>Not a single-page site — but only 1 of 4 real pages is indexed</h3>
+        <p>The owner confirms /about, /services, and /contact exist and are live. GSC's own Pages report (owner-confirmed) shows only 1 page indexed. This means my original "effectively single-page" framing had the wrong cause: it's not that dedicated content doesn't exist, it's that Google hasn't indexed it yet — which also explains why those 3 URLs never appeared in any of my query/page-performance data (an unindexed page cannot earn search impressions). This is now the single most important technical finding in this audit.</p>
       </div>
       <div class="finding">
         <span class="tag good">CONFIRMED</span>
@@ -148,7 +153,7 @@
       </div>
       <div class="finding">
         <span class="tag warn">NOT YET ACTIONED</span>
-        <h3>On-page findings unchanged</h3>
+        <h3>Homepage on-page findings unchanged</h3>
         <p>Title tag, H1, meta description, and canonical are identical to the first audit — meta description is still empty, the H1 spacing artifact is still there. No evidence any on-page fix has shipped yet.</p>
       </div>
       <div class="finding">
@@ -173,21 +178,21 @@
         <p>This is not a ranking failure — it's the Google Local Pack / Maps panel absorbing the click before the searcher ever reaches an organic result. Industry data backs this exactly: ~86% of Google Business Profile impressions come from category searches like "barber near me," and the 3 Local Pack listings capture nearly all of that intent before organic results are seen.</p>
       </div>
       <div class="finding">
-        <span class="tag warn">UNRESOLVED</span>
-        <h3>Sitemap discrepancy — see Progress section above</h3>
-        <p>Search Console still returns no sitemap data for the connected property, even re-checked against the maximum historical range. You report a sitemap was submitted — most likely a different GSC property/account than the one connected here. Not treating this as a confirmed "missing sitemap" until resolved.</p>
+        <span class="tag critical">CRITICAL</span>
+        <h3>3 of 4 real pages aren't indexed by Google</h3>
+        <p>/about, /services, and /contact exist and are live, but GSC's Pages report shows only 1 page indexed (the homepage). This is a crawlability/indexing problem, not a content problem — see the Progress section above and the top priority queue item.</p>
       </div>
       <div class="finding">
-        <span class="tag warn">WARN</span>
-        <h3>Effectively a single-page site</h3>
-        <p>Confirmed two ways: Search Console shows only the homepage (plus in-page anchors #about/#info/#services), and a site: search shows only one indexed URL. GA4 now shows a "/services" landing page, but this most likely reflects GA4 stripping the "#services" anchor fragment rather than a genuinely new page — not confirmed as new.</p>
+        <span class="tag good">GOOD</span>
+        <h3>Sitemap is submitted</h3>
+        <p>Confirmed via the owner's Search Console access. Worth double-checking it correctly lists /about, /services, and /contact, since Google still hasn't indexed them.</p>
       </div>
     </div>
   </section>
 
   <section>
     <div class="sec-head"><span class="idx">02</span><h2>On-page technical scan</h2></div>
-    <p class="sec-intro">Checked directly via Search Console's on-page tag extraction (title, meta description, H1, canonical) for the one real page on this site. Word count, heading hierarchy, internal linking, and image alt text could not be checked — see the note below.</p>
+    <p class="sec-intro">Checked directly via Search Console's on-page tag extraction (title, meta description, H1, canonical) for the one indexed page on this site. /about, /services, and /contact are confirmed live but not yet indexed, so GSC's tag extraction — which only surfaces data for pages appearing in search performance — has nothing to report for them yet. They'll appear here automatically once indexed.</p>
     <table class="rank-table">
       <thead>
         <tr><th>Page</th><th>Title tag</th><th>Meta description</th><th>H1</th><th class="num">Word count</th></tr>
@@ -200,9 +205,21 @@
           <td><span class="status-pill unverifiable">VERIFY</span><br>"The Art ofThe PerfectCut." — extracted with no spaces between words; likely a tag-extraction artifact, but worth a visual check that the live H1 markup isn't actually missing whitespace</td>
           <td class="num">Unverifiable</td>
         </tr>
+        <tr>
+          <td class="mono">/about</td>
+          <td colspan="4"><span class="status-pill unverifiable">NOT INDEXED YET</span> — cannot be scanned via Search Console until Google indexes it (see priority queue item 001). Direct fetch also blocked, 403.</td>
+        </tr>
+        <tr>
+          <td class="mono">/services</td>
+          <td colspan="4"><span class="status-pill unverifiable">NOT INDEXED YET</span> — same as above.</td>
+        </tr>
+        <tr>
+          <td class="mono">/contact</td>
+          <td colspan="4"><span class="status-pill unverifiable">NOT INDEXED YET</span> — same as above.</td>
+        </tr>
       </tbody>
     </table>
-    <p class="table-note">Identical to the first audit — title, H1, meta description, and canonical are all byte-for-byte unchanged, consistent with no on-page fixes having shipped yet. Direct fetch of the live site again returned HTTP 403 (bot-blocked), so word count, heading hierarchy beyond H1, internal linking, image alt text, and structured data (schema) still could not be checked. Canonical tag remains present and correctly self-referential (https://25thstreetbarbers.com/).</p>
+    <p class="table-note">Homepage row identical to the first audit — title, H1, meta description, and canonical are all byte-for-byte unchanged, consistent with no on-page fixes having shipped yet. Direct fetch of the live site again returned HTTP 403 (bot-blocked) for all four URLs, so word count, heading hierarchy beyond H1, internal linking, image alt text, and structured data (schema) still could not be checked on any page. Canonical tag on the homepage remains present and correctly self-referential (https://25thstreetbarbers.com/).</p>
   </section>
 
   <section>
@@ -231,7 +248,7 @@
     <div class="queue">
       <div class="ticket">
         <div class="num">001</div>
-        <div class="body"><h3>Resolve the sitemap property discrepancy</h3><p>You report a sitemap was submitted; Search Console still shows none for the connected property (sc-domain:25thstreetbarbers.com) even at maximum historical range. Check the property selector on Search Console's Sitemaps page — if it's under a URL-prefix property or a different Google account, either resubmit under sc-domain:25thstreetbarbers.com or reconnect the correct property in Supermetrics.</p></div>
+        <div class="body"><h3>Get /about, /services, and /contact indexed</h3><p>The single highest-leverage fix now: these pages exist and a sitemap is submitted, but only the homepage is indexed. Use GSC's URL Inspection tool to request indexing for each, confirm the sitemap actually lists all three URLs, check for a stray <span class="mono">noindex</span> tag or robots.txt block, and make sure the homepage actually links to them (internal links help Google discover and prioritize crawling).</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
@@ -241,7 +258,7 @@
       </div>
       <div class="ticket">
         <div class="num">003</div>
-        <div class="body"><h3>Optimize the Google Business Profile listing</h3><p>Still the highest-leverage fix: 28 queries rank #1–3 organically with zero clicks, almost certainly lost to the Local Pack — and non-branded clicks are unchanged at 1 since the first audit. Add/refresh photos, actively request reviews, confirm categories match "barbershop"/"men's haircut," and make sure name/address/phone match exactly across the web and the site.</p></div>
+        <div class="body"><h3>Optimize the Google Business Profile listing</h3><p>Still the highest-leverage fix for existing traffic: 28 queries rank #1–3 organically with zero clicks, almost certainly lost to the Local Pack — and non-branded clicks are unchanged at 1 since the first audit. Add/refresh photos, actively request reviews, confirm categories match "barbershop"/"men's haircut," and make sure name/address/phone match exactly across the web and the site.</p></div>
         <div class="stamp">Now</div>
       </div>
       <div class="ticket">
@@ -251,27 +268,22 @@
       </div>
       <div class="ticket">
         <div class="num">005</div>
-        <div class="body"><h3>Publish "Men's Haircuts in Kips Bay"</h3><p>Targets the single largest query cluster (mens haircuts near me, mens barber near me, haircut men near me — 108 combined impressions). Draft ready in content-drafts/mens-haircuts-kips-bay.md.</p></div>
+        <div class="body"><h3>Expand /services with men's-haircuts and walk-in content</h3><p>Targets the two largest query clusters (261 combined impressions) once the page is indexed. Content drafted, needs folding into the existing page rather than a new URL — see content-drafts/mens-haircuts-kips-bay.md and content-drafts/walk-ins-welcome.md.</p></div>
         <div class="stamp next">Next</div>
       </div>
       <div class="ticket">
         <div class="num">006</div>
-        <div class="body"><h3>Publish "Walk-Ins Welcome"</h3><p>Targets the immediacy/hours cluster (barbershops near me, barber close to me, male barber shop near me, barber near me open now — 86 combined impressions). Draft ready in content-drafts/walk-ins-welcome.md.</p></div>
+        <div class="body"><h3>Add pricing/FAQ content to /services</h3><p>Not tied to a single high-volume query — addresses what customers actually ask before booking, and is FAQPage-schema-ready once live. Draft ready in content-drafts/pricing-faq.md.</p></div>
         <div class="stamp next">Next</div>
       </div>
       <div class="ticket">
         <div class="num">007</div>
-        <div class="body"><h3>Publish a Murray Hill neighborhood page</h3><p>Smaller individual volume but a distinct, real cluster (barber murray hill, murray hill barbershop). Draft ready in content-drafts/murray-hill-barbershop.md.</p></div>
+        <div class="body"><h3>Add Murray Hill neighborhood content to /about or /contact</h3><p>Smaller individual volume but a distinct, real cluster (barber murray hill, murray hill barbershop). Draft ready in content-drafts/murray-hill-barbershop.md — place it wherever your location/service-area info currently lives.</p></div>
         <div class="stamp later">Later</div>
       </div>
       <div class="ticket">
         <div class="num">008</div>
-        <div class="body"><h3>Publish a Pricing &amp; FAQ page</h3><p>Not tied to a single high-volume query — built for AI-answer-engine citability and to address what customers actually ask before booking (pricing transparency, what's included). FAQPage-schema-ready. Draft ready in content-drafts/pricing-faq.md.</p></div>
-        <div class="stamp later">Later</div>
-      </div>
-      <div class="ticket">
-        <div class="num">009</div>
-        <div class="body"><h3>Re-run this audit again in 2+ weeks</h3><p>4 days isn't enough to judge any fix. Once the sitemap, meta description, H1, and GBP items above are actually implemented, wait at least 2 weeks before expecting movement in the zero-click #1 queries.</p></div>
+        <div class="body"><h3>Re-run this audit again in 2+ weeks</h3><p>4 days isn't enough to judge any fix. Once indexing, meta description, H1, and GBP items above are actually implemented, wait at least 2 weeks before expecting movement in the zero-click #1 queries.</p></div>
         <div class="stamp later">Later</div>
       </div>
     </div>
@@ -279,52 +291,38 @@
 
   <section>
     <div class="sec-head"><span class="idx">05</span><h2>Content development plan</h2></div>
-    <p class="sec-intro">Unusual case worth calling out: none of these pages are needed because of poor rankings — every query below already ranks #1–3. They're needed because there's no dedicated page for any of these distinct search intents, which limits both click-through (nothing to differentiate from a Local Pack listing) and how citable this content is to AI answer engines.</p>
+    <p class="sec-intro">Revised from the first audit: /about, /services, and /contact already exist, so this is no longer about publishing new standalone pages — it's about expanding the two pages that need it once they're indexed (see priority queue item 001), and consolidating rather than fragmenting into narrow one-off URLs. None of this is needed because of poor rankings — every query below already ranks #1–3; it's needed for depth, click-through, and AI-answer citability.</p>
 
     <div class="plan-card">
-      <div class="plan-head"><span class="url">/mens-haircuts-kips-bay</span><span class="status">Proposed · Week 1</span></div>
+      <div class="plan-head"><span class="url">/services (expand)</span><span class="status">Proposed · after indexing lands</span></div>
       <div class="plan-body">
         <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Largest query cluster on the site (175 combined impressions across 5 related queries), all ranking #1–3 with 0 clicks. A dedicated page adds the depth and specificity (pricing, consult process, fade/taper explanation) a bare homepage can't.</li></ul></div>
+          <div><h4>Fix / Why</h4><ul>
+            <li>Largest query cluster on the site (175 combined impressions across 5 related queries), all ranking #1–3 with 0 clicks. Add depth and specificity (pricing, consult process, fade/taper explanation) beyond whatever's currently there.</li>
+            <li>Plus the immediacy/hours cluster (86 combined impressions) — confirm walk-in policy and hours directly on this page.</li>
+            <li>Plus pricing/FAQ content — addresses what customers ask before booking, and is FAQPage-schema-ready.</li>
+          </ul></div>
           <div><h4>Target queries</h4><div>
             <span class="kw-chip">mens haircuts near me</span>
             <span class="kw-chip">haircut near me</span>
             <span class="kw-chip">mens barber near me</span>
-            <span class="kw-chip">haircut men near me</span>
-            <span class="kw-chip">haircut for men</span>
-          </div></div>
-        </div>
-        <div style="margin-top:14px;">
-          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Full draft</h4>
-          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/mens-haircuts-kips-bay.md</span> — drafted, pricing/hours placeholders need real figures before publishing.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="plan-card">
-      <div class="plan-head"><span class="url">/walk-ins-welcome</span><span class="status">Proposed · Week 3</span></div>
-      <div class="plan-body">
-        <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Second-largest cluster (86 combined impressions), all immediacy-intent ("close to me," "open now"). A page confirming hours/walk-in policy directly answers the intent behind these searches.</li></ul></div>
-          <div><h4>Target queries</h4><div>
             <span class="kw-chip">barbershops near me</span>
             <span class="kw-chip">barber close to me</span>
-            <span class="kw-chip">male barber shop near me</span>
             <span class="kw-chip">barber near me open now</span>
           </div></div>
         </div>
         <div style="margin-top:14px;">
-          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Full draft</h4>
-          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/walk-ins-welcome.md</span> — drafted, hours/address/wait-time placeholders need real figures before publishing.</p>
+          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Drafted sections to fold in</h4>
+          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/mens-haircuts-kips-bay.md</span>, <span class="mono">content-drafts/walk-ins-welcome.md</span>, <span class="mono">content-drafts/pricing-faq.md</span> — written as standalone pages originally, need reworking into sections of one page. Pricing/hours placeholders still need real figures.</p>
         </div>
       </div>
     </div>
 
     <div class="plan-card">
-      <div class="plan-head"><span class="url">/murray-hill-barbershop</span><span class="status">Proposed · Week 5</span></div>
+      <div class="plan-head"><span class="url">/about or /contact (expand)</span><span class="status">Proposed · after indexing lands</span></div>
       <div class="plan-body">
         <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Smaller individual volume but a real, distinct neighborhood cluster, and matches the business's own stated service area (Murray Hill and Midtown Manhattan, per the site's public description). Also improves depth for the broader NYC-wide queries currently ranking poorly (position 40–80).</li></ul></div>
+          <div><h4>Fix / Why</h4><ul><li>Smaller individual volume but a real, distinct neighborhood cluster, and matches the business's own stated service area (Murray Hill and Midtown Manhattan). Also improves depth for the broader NYC-wide queries currently ranking poorly (position 40–80). Placement guess only — put it wherever your location/service-area info currently lives.</li></ul></div>
           <div><h4>Target queries</h4><div>
             <span class="kw-chip">murray hill barbershop</span>
             <span class="kw-chip">barber murray hill</span>
@@ -333,24 +331,8 @@
           </div></div>
         </div>
         <div style="margin-top:14px;">
-          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Full draft</h4>
-          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/murray-hill-barbershop.md</span> — drafted, directions/differentiator placeholders need real details before publishing.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="plan-card">
-      <div class="plan-head"><span class="url">/pricing-faq</span><span class="status">Proposed · Week 7</span></div>
-      <div class="plan-body">
-        <div class="plan-grid">
-          <div><h4>Fix / Why</h4><ul><li>Not a ranking play — industry research confirms customers want pricing/what's-included transparency before booking, and this format is ready to carry FAQPage schema once published (valuable for AI-answer-engine parsing, not the retired FAQ rich-result dropdown).</li></ul></div>
-          <div><h4>Target queries</h4><div>
-            <span class="kw-chip">no single high-volume query — AEO/informational</span>
-          </div></div>
-        </div>
-        <div style="margin-top:14px;">
-          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Full draft</h4>
-          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/pricing-faq.md</span> — drafted, real pricing needs to replace placeholders before publishing.</p>
+          <h4 style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--steel);margin:0 0 6px;">Drafted section to fold in</h4>
+          <p style="font-size:14px;margin:0;"><span class="mono">content-drafts/murray-hill-barbershop.md</span> — written as a standalone page originally, needs reworking into a section. Directions/differentiator placeholders still need real details.</p>
         </div>
       </div>
     </div>
@@ -360,12 +342,12 @@
     <div class="sec-head"><span class="idx">06</span><h2>AEO readiness</h2></div>
     <p class="sec-intro">How AI answer engines (Google AI Overviews, ChatGPT, Perplexity) would currently read this site.</p>
     <div class="checklist">
-      <div class="check-item todo"><span class="mark">+</span><p><strong>Sitemap submitted.</strong> Unresolved — you report one was submitted, but it doesn't show under the connected property. See priority queue item 001.</p></div>
+      <div class="check-item done"><span class="mark">✓</span><p><strong>Sitemap submitted.</strong> Confirmed via owner's Search Console access. Worth confirming it lists /about, /services, and /contact, since those aren't indexed yet.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>Non-branded discovery traffic exists.</strong> 1 click from 585 non-branded impressions in 3 months — unchanged since the first audit.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>Meta description present.</strong> Confirmed empty on the homepage.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>H1 clean and unambiguous.</strong> Extracted as "The Art ofThe PerfectCut." — needs visual confirmation the live markup has correct spacing.</p></div>
       <div class="check-item todo"><span class="mark">+</span><p><strong>FAQPage / Service / LocalBusiness schema.</strong> Unverifiable this run (direct fetch blocked, 403). Note: valuable for AI-answer-engine parsing, not the retired FAQ rich-result dropdown from May 2026.</p></div>
-      <div class="check-item todo"><span class="mark">+</span><p><strong>Content matches how customers actually ask.</strong> Homepage copy leads with "Premium Men's Grooming" — more marketing register than the actual top queries ("haircut," "barbershop," "near me"). The four drafted pages address this directly.</p></div>
+      <div class="check-item todo"><span class="mark">+</span><p><strong>Content matches how customers actually ask.</strong> Homepage copy leads with "Premium Men's Grooming" — more marketing register than the actual top queries ("haircut," "barbershop," "near me"). Unverified on /about, /services, /contact until indexed. The drafted content sections address this directly once folded in.</p></div>
     </div>
   </section>
 
@@ -386,7 +368,7 @@
         <tr><td>Organic Search</td><td class="mono">/services</td><td class="num">1</td><td class="num">0m 0s</td></tr>
       </tbody>
     </table>
-    <p class="table-note">Organic Social's ~7-second average duration is now backed by 13 sessions instead of the first audit's 10 — same bounce-heavy pattern, worth addressing once there's a dedicated landing page rather than dropping social traffic on the homepage. "/services" appearing here likely reflects GA4 stripping the "#services" anchor rather than a new page — Search Console still only shows "/#services", not a bare "/services" (see the single-page-site note above). 0 conversions recorded — worth setting up conversion tracking (e.g. booking clicks, phone clicks) if that's not configured yet.</p>
+    <p class="table-note">Organic Social's ~7-second average duration is now backed by 13 sessions instead of the first audit's 10 — same bounce-heavy pattern, worth addressing once /services has real content rather than dropping social traffic on the homepage. Correction: "/services" here is the real page confirmed by the owner (not an anchor-stripping artifact as guessed in the prior version of this audit) — though 1 Organic Search session landing on an unindexed page is a minor inconsistency worth watching, not fully explained yet (possibly a very recent, not-yet-reflected crawl, or GA4 channel misattribution). 0 conversions recorded — worth setting up conversion tracking (e.g. booking clicks, phone clicks) if that's not configured yet.</p>
   </section>
 
   <footer>

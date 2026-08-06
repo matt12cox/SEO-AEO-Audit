@@ -1,6 +1,8 @@
 <!--
-Title tag: Barbershop Near Murray Hill, NYC | Barbers on 25th (54 chars)
-Meta description: Barbers on 25th sits in Kips Bay, minutes from Murray Hill. Precision cuts, walk-ins welcome. See directions and hours. (121 chars)
+REPOSITIONED (2026-08-04): originally drafted as a standalone page. Fold this into whichever
+existing page currently holds your location/service-area info — /about or /contact (both exist on
+the live site, just not yet indexed by Google — see priority queue item 001). Not a new URL.
+
 Primary keyword: murray hill barbershop
 Supporting keywords: barber murray hill, murray hill barber shop, neighborhood barbers nyc
 Target queries this closes (low individual volume but a real neighborhood cluster):

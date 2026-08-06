@@ -1,10 +1,13 @@
 <!--
-Title tag: Walk-In Barbershop in Kips Bay | Barbers on 25th (55 chars)
-Meta description: Walk-ins welcome at Barbers on 25th in Kips Bay. Open [INSERT HOURS], no appointment needed. See current wait times and get directions. (140 chars)
+REPOSITIONED (2026-08-04): originally drafted as a standalone page. Since /services already
+exists on the live site (just not yet indexed by Google — see priority queue item 001), fold this
+in as a section of /services rather than publishing at a new URL.
+
+Suggested title tag (if this became its own section heading, not a new page's <title>): Walk-Ins Welcome
 Primary keyword: barbershop near me
 Supporting keywords: barbershops near me, barber close to me, male barber shop near me, barber near me open now
-Target queries this closes (all rank #1 already, 0 clicks — see audit notes on why this page still matters):
-  barbershop near me (37 impr, pos 6.7), barbershops near me (35 impr, pos 1),
+Target queries this closes (all rank #1 already, 0 clicks — see audit notes on why this content still matters):
+  barbershop near me (44 impr, pos 6.9), barbershops near me (36 impr, pos 1),
   barber close to me (23 impr, pos 1), male barber shop near me (21 impr, pos 1),
   barber near me open now (6 impr, pos 1)
 

@@ -128,7 +128,18 @@
           "date_implemented": null,
           "target_keyword": null,
           "baseline": {"sitemap_data_found": false},
-          "current": {"sitemap_data_found": false, "note": "Client reports a sitemap was submitted. Re-verified with maximum historical range (2025-04-05 to 2026-08-04) and minimal field set — still no data for the connected property sc-domain:25thstreetbarbers.com. Likely a different GSC property (URL-prefix vs. domain) or different Google account. Unresolved pending client confirmation of which property shows it."},
+          "current": {"sitemap_data_found": true, "note": "Confirmed via owner's direct Search Console access — property switcher reads 'sc-domain:25thstreetbarbers.com', same property connected here. API still returns no sitemap data even at max historical range and after explicitly testing the URL-prefix account variant (rejected as unavailable, ruling out account mismatch) — concluded to be a Supermetrics sync/caching gap for the Sitemaps endpoint specifically, not incorrect data access. Treating as resolved based on owner confirmation."},
+          "status": "improved"
+        },
+        {
+          "id": "page-indexing-gap",
+          "title": "Get /about, /services, /contact indexed by Google",
+          "type": "technical",
+          "date_recommended": "2026-08-04",
+          "date_implemented": null,
+          "target_keyword": null,
+          "baseline": {"indexed_pages": 1, "known_live_pages": 4, "note": "Discovered mid-review: owner confirms /about, /services, /contact exist and are live, but GSC's Pages report (owner-confirmed) shows only 1 page indexed. Corrects the first audit's 'effectively single-page site' finding — the pages exist, they're just not indexed yet. Explains why they never appeared in any GSC query/page-performance pull: an unindexed page cannot earn search impressions."},
+          "current": {"indexed_pages": 1, "known_live_pages": 4},
           "status": "open"
         },
         {
@@ -183,7 +194,7 @@
           "date_implemented": null,
           "target_keyword": "mens haircuts near me",
           "baseline": {"position": 1.0, "impressions": 34, "clicks": 0},
-          "current": {"position": 1.86, "impressions": 43, "clicks": 0},
+          "current": {"position": 1.86, "impressions": 43, "clicks": 0, "note": "Repositioned 2026-08-04: fold into existing /services page as a section rather than publishing at a new URL, once /services is indexed (see page-indexing-gap)."},
           "status": "open"
         },
         {
@@ -194,7 +205,7 @@
           "date_implemented": null,
           "target_keyword": "barbershop near me",
           "baseline": {"position": 6.68, "impressions": 37, "clicks": 0},
-          "current": {"position": 6.89, "impressions": 44, "clicks": 0},
+          "current": {"position": 6.89, "impressions": 44, "clicks": 0, "note": "Repositioned 2026-08-04: fold into existing /services page as a section rather than publishing at a new URL, once /services is indexed (see page-indexing-gap)."},
           "status": "open"
         },
         {
@@ -205,7 +216,7 @@
           "date_implemented": null,
           "target_keyword": "murray hill barbershop",
           "baseline": {"position": 11.0, "impressions": 2, "clicks": 0},
-          "current": {"position": 11.0, "impressions": 2, "clicks": 0},
+          "current": {"position": 11.0, "impressions": 2, "clicks": 0, "note": "Repositioned 2026-08-04: fold into existing /about or /contact page as a section rather than publishing at a new URL, once that page is indexed (see page-indexing-gap)."},
           "status": "open"
         },
         {
@@ -216,7 +227,7 @@
           "date_implemented": null,
           "target_keyword": null,
           "baseline": {"schema_present": false},
-          "current": {"schema_present": false},
+          "current": {"schema_present": false, "note": "Repositioned 2026-08-04: fold into existing /services page as a section rather than publishing at a new URL. Real pricing found via web search (Men's haircut $40/20min, hot towel shave $30/30min, beard trim $20/10min, senior cut $25/20min) — unconfirmed against primary source, flagged for verification in the draft."},
           "status": "open"
         },
         {

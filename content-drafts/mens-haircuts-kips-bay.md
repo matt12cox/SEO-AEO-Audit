@@ -1,21 +1,28 @@
 <!--
-Title tag: Men's Haircuts in Kips Bay, NYC | Barbers on 25th (52 chars)
-Meta description: Precision men's haircuts in Kips Bay from barbers who consult before they cut. Walk-ins welcome, [INSERT WAIT TIME] typical wait. Book online. (149 chars)
+REPOSITIONED (2026-08-04): originally drafted as a standalone page. Since /services already
+exists on the live site (just not yet indexed by Google — see priority queue item 001), fold this
+in as a section of /services rather than publishing at a new URL. Suggested section heading below;
+adjust title tag/meta description guidance to apply to the /services page as a whole once you know
+what's already there.
+
+Suggested title tag: Men's Haircuts in Kips Bay, NYC | Barbers on 25th (52 chars)
+Suggested meta description: Precision men's haircuts in Kips Bay from barbers who consult before they cut. Walk-ins welcome, [INSERT WAIT TIME] typical wait. Book online. (149 chars)
 Primary keyword: mens haircuts near me
 Supporting keywords: haircut near me, mens barber near me, haircut men near me, haircut for men
-Target queries this closes (all rank #1-3 already, 0 clicks — see audit notes on why this page still matters):
-  mens haircuts near me (34 impr), haircut near me (36 impr), mens barber near me (30 impr),
-  haircut men near me (28 impr), haircut for men (19 impr)
+Target queries this closes (all rank #1-3 already, 0 clicks — see audit notes on why this content still matters):
+  mens haircuts near me (43 impr), mens barber near me (37 impr), haircut men near me (28 impr),
+  haircut for men (19 impr)
 
-NOTE ON SOURCING: address/hours/phone/duration/booking-link filled in below came from third-party
-listings (Yelp, Fresha, Square) found via web search, not the live site itself (direct fetch was
-blocked, 403). Verify all of these against the actual current site/GBP before publishing. Price is
-still a placeholder — no source had exact dollar figures.
+NOTE ON SOURCING: address/hours/phone/booking-link came from third-party listings (Yelp, Fresha,
+Square) found via web search, not the live site itself (direct fetch still blocked, 403). Verify
+before publishing. Price ($40, 20 min) came from an aggregated search result that looked
+structured/reliable (exact figures, not a vague range) but is still unconfirmed against the
+primary source — double-check before publishing.
 -->
 
 # Men's Haircuts in Kips Bay
 
-A men's haircut at Barbers on 25th runs [INSERT PRICE] and takes about 30 minutes — starting with a two-minute consult on what's actually growing well for your hair before a single cut is made.
+A men's haircut at Barbers on 25th runs $40 and takes about 20 minutes [VERIFY before publishing] — starting with a two-minute consult on what's actually growing well for your hair before a single cut is made.
 
 That consult step is the part most "near me" barbershops skip, and it's the difference between a haircut that looks right for one week and a cut a barber built to grow out clean. If you've been getting the same length for years, it takes thirty seconds. If you're not sure what you want, it takes a bit longer — and it's worth it.
 
@@ -50,7 +57,7 @@ Barbers on 25th sits in Kips Bay, an easy stop for the Murray Hill and Midtown M
 No — walk-ins are welcome. [INSERT WALK-IN WAIT GUIDANCE]. Booking ahead is available if you'd rather lock in a time.
 
 **How long does a haircut take?**
-About 30 minutes, including the consultation.
+About 20 minutes, including the consultation [VERIFY before publishing — sources gave slightly different figures, 20 vs. 30 min].
 
 **What if I don't know what style I want?**
 That's what the consultation is for — tell your barber what's frustrating you about your current cut (too much on top, grows out awkwardly, takes too long to style) and they'll work from there.
