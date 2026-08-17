@@ -39,6 +39,40 @@ credentials.
    skill, or `reference/SKILL.md`) to get the full publish-ready
    draft, since writing genuinely good, industry-fluent copy needs an
    LLM, not a heuristic.
+6. A **Full Audit / Client Dashboard** toggle at the top of the results
+   switches between the practitioner-facing audit above and a simpler,
+   client-presentable report (see below) — both refreshable and
+   exportable from the same data pull.
+
+## Client Dashboard view
+
+A second, simpler report built for showing directly to a client —
+Executive Summary → Quick Wins → Content Gap Analysis → Top Pages
+Audit — using only real GSC/GA4 data already pulled for the main
+audit (no extra API calls, no paid keyword-research tool):
+
+- **Executive summary**: 3-5 plain-English bullets synthesized from the
+  same numbers as the full audit.
+- **Quick wins**: queries already ranking position 4-20 with real
+  impressions, ranked by estimated click uplift if they reached
+  position 3. The uplift is `impressions × (benchmark CTR at position 3
+  − benchmark CTR at current position)`, using a labeled industry CTR
+  curve (Backlinko's 2026 organic CTR study, interpolated — see
+  `CTR_BENCHMARK_SOURCE` in `assets/audit-engine.js`), never a
+  measurement of this specific site's behavior at position 3. Every
+  place this shows up says so explicitly — treat it as directional.
+- **Content gap analysis**: the same non-branded-queries-with-no-page
+  logic as the full audit's content plan, shown as a plain table.
+- **Top pages audit**: cross-references GSC page-level clicks/CTR
+  against GA4 landing-page sessions to flag pages whose CTR is well
+  below the position's benchmark, or pages with GSC clicks but no
+  matching GA4 sessions (a possible tracking gap, not necessarily a
+  content problem).
+
+This intentionally leaves out anything that would need a paid
+keyword-volume/competitor-database tool (Semrush, Ahrefs, etc.) —
+it's built to be free and scalable across any number of client sites,
+since it only depends on each site's own connected GSC/GA4 accounts.
 
 ## One-time setup: Google OAuth credentials
 

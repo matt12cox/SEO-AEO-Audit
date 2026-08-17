@@ -47,6 +47,15 @@ header.masthead h1 em{color:var(--critical);font-style:italic;}
 .finding h3{font-size:17px;margin-bottom:8px;}
 .finding p{margin:0;font-size:14.5px;color:var(--ink-soft);}
 
+.exec-list{display:flex;flex-direction:column;gap:2px;}
+.exec-item{display:flex;gap:14px;align-items:flex-start;padding:14px 4px;border-bottom:1px solid var(--line);}
+.exec-item:last-child{border-bottom:none;}
+.exec-item .exec-mark{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:7px;background:var(--steel);}
+.exec-item.good .exec-mark{background:#3E6B4F;}
+.exec-item.warn .exec-mark{background:var(--accent-text);}
+.exec-item.critical .exec-mark{background:var(--critical);}
+.exec-item p{margin:0;font-size:15.5px;color:var(--ink-soft);line-height:1.5;}
+
 .rank-table{width:100%;border-collapse:collapse;font-size:14px;}
 .rank-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--steel);border-bottom:1px solid var(--ink);padding:8px 10px;}
 .rank-table td{padding:9px 10px;border-bottom:1px solid var(--line);}

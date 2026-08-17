@@ -107,12 +107,16 @@
     <button id="btn-reset-2" type="button">Start over</button>
   </div>
   <div class="dashboard-toolbar">
-    <span class="small-note" style="margin:0;">Content plan fields are editable — click into them before exporting.</span>
+    <div class="view-toggle" id="view-toggle">
+      <button type="button" class="view-toggle-btn active" data-view="full">Full Audit</button>
+      <button type="button" class="view-toggle-btn" data-view="client">Client Dashboard</button>
+    </div>
     <div class="btn-row">
       <button class="btn secondary" id="btn-rerun" type="button">Change scope</button>
       <button class="btn" id="btn-export" type="button">Download standalone HTML</button>
     </div>
   </div>
+  <p class="small-note" id="view-hint" style="margin:0 0 20px;">Content plan fields are editable — click into them before exporting.</p>
 
   <div class="card" id="aeo-panel">
     <h2>Automate the AEO content check</h2>

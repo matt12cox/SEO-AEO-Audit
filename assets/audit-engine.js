@@ -21,6 +21,28 @@ function slugify(str) {
     .slice(0, 60);
 }
 
+// Industry-average organic CTR by position, interpolated from Backlinko's
+// 2026 study (position 1 ≈ 27.6%, top 3 combined ≈ 54.4%, position 10 ≈
+// 1.7%, page 2 average ≈ 0.63%), cross-confirmed by multiple 2026
+// aggregators. This is a labeled industry benchmark, not a measurement of
+// any specific site — every place it's used says so explicitly.
+export const CTR_BENCHMARK_SOURCE = "Backlinko 2026 organic CTR study (cross-confirmed by multiple 2026 aggregators)";
+const CTR_BY_POSITION = {
+  1: 0.276, 2: 0.158, 3: 0.11, 4: 0.08, 5: 0.07, 6: 0.05, 7: 0.04, 8: 0.03,
+  9: 0.025, 10: 0.017, 11: 0.014, 12: 0.012, 13: 0.01, 14: 0.009, 15: 0.008,
+  16: 0.007, 17: 0.006, 18: 0.005, 19: 0.004, 20: 0.003,
+};
+
+export function estimateCtrForPosition(position) {
+  if (position <= 1) return CTR_BY_POSITION[1];
+  if (position >= 20) return CTR_BY_POSITION[20];
+  const lo = Math.floor(position);
+  const hi = Math.ceil(position);
+  if (lo === hi) return CTR_BY_POSITION[lo];
+  const frac = position - lo;
+  return CTR_BY_POSITION[lo] + (CTR_BY_POSITION[hi] - CTR_BY_POSITION[lo]) * frac;
+}
+
 function buildBrandMatcher(brandTermsCsv) {
   const terms = (brandTermsCsv || '')
     .split(',')
@@ -48,6 +70,115 @@ export function normalizeGa4Report(report) {
     row.metricValues.forEach((v, i) => (out[metricHeaders[i]] = Number(v.value)));
     return out;
   });
+}
+
+/**
+ * "Quick wins": queries already ranking on page 1-2 (position 4-20) with
+ * real impressions, ranked by estimated click uplift if they reached
+ * position 3. Uplift is (impressions × (CTR-at-position-3 − CTR-at-current))
+ * using the labeled industry CTR benchmark above — never a measurement of
+ * this specific site, always presented as an estimate.
+ */
+function computeQuickWins(queryRows) {
+  const ctrAt3 = CTR_BY_POSITION[3];
+  return queryRows
+    .filter((r) => r.position >= 4 && r.position <= 20 && r.impressions >= 5)
+    .map((r) => {
+      const currentCtrBenchmark = estimateCtrForPosition(r.position);
+      const estimatedUpliftClicks = Math.max(0, r.impressions * (ctrAt3 - currentCtrBenchmark));
+      return { ...r, estimatedUpliftClicks };
+    })
+    .filter((r) => r.estimatedUpliftClicks > 0)
+    .sort((a, b) => b.estimatedUpliftClicks - a.estimatedUpliftClicks)
+    .slice(0, 10);
+}
+
+/**
+ * Cross-references GSC page-level performance against GA4 landing-page
+ * sessions (summed across channels) to flag two free, real-data proxies
+ * for what a Semrush-style "top pages audit" looks for: pages whose click
+ * rate is well below the CTR benchmark for their position (possible
+ * ranking/snippet issue), and pages with GSC clicks but no matching GA4
+ * sessions (possible tracking gap, not necessarily a content problem).
+ */
+function computeTopPagesAudit(pageRows, ga4RawBreakdownRows) {
+  const sessionsByPath = {};
+  (ga4RawBreakdownRows || []).forEach((r) => {
+    const path = r.landingPage || r.landingPagePlusQueryString || '';
+    sessionsByPath[path] = (sessionsByPath[path] || 0) + (r.sessions || 0);
+  });
+
+  return pageRows
+    .filter((r) => r.impressions >= 10)
+    .map((r) => {
+      let path = r.page;
+      try {
+        path = new URL(r.page).pathname || '/';
+      } catch {
+        /* leave as-is if not a full URL */
+      }
+      const ga4Sessions = sessionsByPath[path] ?? null;
+      const benchmarkCtr = estimateCtrForPosition(r.position);
+      const underperforming = r.ctr > 0 && r.ctr < benchmarkCtr * 0.5;
+      const trackingGap = r.clicks > 0 && (ga4Sessions === null || ga4Sessions === 0);
+      let flag = 'healthy';
+      if (underperforming) flag = 'underperforming';
+      else if (trackingGap) flag = 'tracking-gap';
+      return {
+        page: r.page,
+        path,
+        impressions: r.impressions,
+        clicks: r.clicks,
+        ctr: r.ctr,
+        position: r.position,
+        ga4Sessions,
+        benchmarkCtr,
+        flag,
+      };
+    })
+    .sort((a, b) => b.impressions - a.impressions);
+}
+
+/**
+ * 3-5 plain-English bullets summarizing the audit's state, each tagged
+ * good/warn/critical, built entirely from numbers already computed above.
+ */
+function computeExecutiveSummary({ totalClicks, totalImpressions, nonBrandedClicks, zeroClickCount, contentGapCount, ga4Status, ga4Sessions, dateRangeLabel }) {
+  const bullets = [];
+  bullets.push({
+    tag: 'good',
+    text: `${totalClicks} click${totalClicks === 1 ? '' : 's'} from ${totalImpressions} impressions in Search Console over ${dateRangeLabel}.`,
+  });
+  if (totalClicks > 0) {
+    const pct = Math.round((nonBrandedClicks / totalClicks) * 100);
+    bullets.push({
+      tag: pct >= 30 ? 'good' : pct === 0 ? 'critical' : 'warn',
+      text: pct === 0
+        ? 'Zero non-branded clicks — all traffic came from people already searching the business by name, no measurable new-customer discovery.'
+        : `${pct}% of clicks are non-branded (new-customer discovery), ${100 - pct}% branded (people who already knew the business).`,
+    });
+  }
+  if (zeroClickCount > 0) {
+    bullets.push({
+      tag: 'critical',
+      text: `${zeroClickCount} quer${zeroClickCount === 1 ? 'y ranks' : 'ies rank'} #1-3 organically with zero clicks — likely lost to the Local Pack / Maps panel, not a ranking problem.`,
+    });
+  }
+  if (contentGapCount > 0) {
+    bullets.push({
+      tag: 'warn',
+      text: `${contentGapCount} content gap${contentGapCount === 1 ? '' : 's'}: real search demand with no page currently winning it.`,
+    });
+  }
+  bullets.push({
+    tag: ga4Status === 'ok' ? 'good' : ga4Status === 'early' ? 'warn' : 'critical',
+    text: ga4Status === 'no-data'
+      ? 'GA4 returned no data for this range — confirm tracking is installed and pointed at the right property.'
+      : ga4Status === 'early'
+        ? `GA4 shows early signal only (${ga4Sessions} sessions) — not yet enough data for a reliable trend.`
+        : `GA4 shows ${ga4Sessions} sessions over this range with an established trend.`,
+  });
+  return bullets.slice(0, 5);
 }
 
 /**
@@ -256,6 +387,20 @@ export function runAudit(raw) {
     },
   ];
 
+  const ga4Summary = summarizeGa4(raw.ga4);
+  const quickWins = computeQuickWins(queryRows);
+  const topPagesAudit = computeTopPagesAudit(pageRows, raw.ga4?.breakdownRows);
+  const executiveSummary = computeExecutiveSummary({
+    totalClicks,
+    totalImpressions,
+    nonBrandedClicks,
+    zeroClickCount: zeroClickTopRank.length,
+    contentGapCount: contentGapCandidates.length,
+    ga4Status: ga4Summary.status,
+    ga4Sessions: ga4Summary.totalSessions || 0,
+    dateRangeLabel: raw.dateRangeLabel,
+  });
+
   return {
     meta: {
       siteUrl: raw.siteUrl,
@@ -275,10 +420,15 @@ export function runAudit(raw) {
     zeroClickTopRank,
     tickets,
     contentPlan,
+    contentGapCandidates,
     contentGapStats,
     topNonBrandedQueries,
     aeoChecklist,
-    ga4: summarizeGa4(raw.ga4),
+    executiveSummary,
+    quickWins,
+    topPagesAudit,
+    ctrBenchmarkSource: CTR_BENCHMARK_SOURCE,
+    ga4: ga4Summary,
     pageRows,
   };
 }

@@ -1,7 +1,7 @@
 import { initAuth, signIn, getToken } from './google-auth.js';
 import { gscListSites, gscSearchAnalytics, gscSitemaps, ga4ListProperties, ga4RunReport } from './api.js';
 import { runAudit, normalizeGa4Report, buildAeoChecklistWithPageResults } from './audit-engine.js';
-import { renderDashboardBody, buildStandaloneHtml, slugForFile } from './render.js';
+import { renderDashboardBody, renderClientDashboardBody, buildStandaloneHtml, slugForFile } from './render.js';
 import { getStoredApiKey, storeApiKey, tryAutoFetch, analyzePage } from './aeo-check.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -33,6 +33,9 @@ const els = {
   btnRerun: $('#btn-rerun'),
   btnReset: $('#btn-reset'),
   btnReset2: $('#btn-reset-2'),
+  viewToggle: $('#view-toggle'),
+  viewHint: $('#view-hint'),
+  aeoPanel: $('#aeo-panel'),
 
   inputAnthropicKey: $('#input-anthropic-key'),
   selectAeoModel: $('#select-aeo-model'),
@@ -44,6 +47,23 @@ const els = {
 
 let lastAudit = null;
 let lastFormMeta = null;
+let currentView = 'full';
+
+function renderCurrentView() {
+  if (!lastAudit) return;
+  if (currentView === 'client') {
+    els.dashboardMount.innerHTML = renderClientDashboardBody(lastAudit, lastFormMeta);
+    els.aeoPanel.style.display = 'none';
+    els.viewHint.textContent = 'A simpler, client-facing view — real GSC/GA4 data only, no priority queue or content drafts.';
+    els.btnExport.textContent = 'Download Client Dashboard HTML';
+  } else {
+    els.dashboardMount.innerHTML = renderDashboardBody(lastAudit, lastFormMeta);
+    wireDashboardInteractions();
+    els.aeoPanel.style.display = '';
+    els.viewHint.textContent = 'Content plan fields are editable — click into them before exporting.';
+    els.btnExport.textContent = 'Download Full Audit HTML';
+  }
+}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
@@ -212,7 +232,8 @@ async function runFullAudit() {
             dimensions: [{ name: 'sessionDefaultChannelGroup' }, { name: 'landingPage' }],
             metrics: [{ name: 'sessions' }, { name: 'averageSessionDuration' }],
             orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
-            limit: 10,
+            limit: 1000, // full breakdown, not just top 10 — needed so the Top Pages Audit's
+            // GA4-session cross-reference doesn't false-flag pages simply absent from a short list
           }),
         ]);
         ga4Raw = {
@@ -238,9 +259,10 @@ async function runFullAudit() {
 
     lastAudit = audit;
     lastFormMeta = formMeta;
+    currentView = 'full';
+    els.viewToggle.querySelectorAll('.view-toggle-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === 'full'));
 
-    els.dashboardMount.innerHTML = renderDashboardBody(audit, formMeta);
-    wireDashboardInteractions();
+    renderCurrentView();
     resetAeoPanel(siteUrl);
     showScreen('screen-dashboard');
   } catch (err) {
@@ -269,6 +291,14 @@ function wireDashboardInteractions() {
     });
   });
 }
+
+els.viewToggle.addEventListener('click', (e) => {
+  const btn = e.target.closest('.view-toggle-btn');
+  if (!btn) return;
+  currentView = btn.dataset.view;
+  els.viewToggle.querySelectorAll('.view-toggle-btn').forEach((b) => b.classList.toggle('active', b === btn));
+  renderCurrentView();
+});
 
 // ---------- AEO content check panel ----------
 
@@ -384,8 +414,7 @@ els.btnRunAeoCheck.addEventListener('click', async () => {
   }
 
   lastAudit.aeoChecklist = buildAeoChecklistWithPageResults(lastAudit.aeoChecklist, pageResults);
-  els.dashboardMount.innerHTML = renderDashboardBody(lastAudit, lastFormMeta);
-  wireDashboardInteractions();
+  renderCurrentView();
 
   const succeeded = pageResults.filter((p) => p.analysis).length;
   els.btnRunAeoCheck.disabled = false;
@@ -401,12 +430,13 @@ els.btnExport.addEventListener('click', async () => {
   const css = await fetch('assets/dashboard.css').then((r) => r.text());
   const bodyHtml = els.dashboardMount.innerHTML;
   const siteName = lastFormMeta?.siteName || lastAudit.meta.siteUrl;
-  const doc = buildStandaloneHtml(bodyHtml, siteName, css);
+  const isClient = currentView === 'client';
+  const doc = buildStandaloneHtml(bodyHtml, siteName, css, isClient ? 'Search Performance Report' : 'Search &amp; Answer Engine Audit');
   const blob = new Blob([doc], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${slugForFile(siteName)}-seo-audit.html`;
+  a.download = `${slugForFile(siteName)}-${isClient ? 'client-dashboard' : 'seo-audit'}.html`;
   a.click();
   URL.revokeObjectURL(url);
 });

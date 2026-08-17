@@ -246,13 +246,135 @@ export function renderDashboardBody(audit, formMeta) {
   </footer>`;
 }
 
-export function buildStandaloneHtml(bodyHtml, siteName, dashboardCss) {
+function renderExecSummary(bullets) {
+  return bullets
+    .map((b) => `<div class="exec-item ${esc(b.tag)}"><span class="exec-mark"></span><p>${esc(b.text)}</p></div>`)
+    .join('');
+}
+
+function renderQuickWins(quickWins, ctrSource) {
+  if (!quickWins || quickWins.length === 0) {
+    return '<p class="sec-intro">No quick-win candidates in this range: no queries currently rank in the position 4–20 band with at least 5 impressions. That usually means rankings are either already strong (page 1, top 3) or too new/low-volume to show a pattern yet.</p>';
+  }
+  const rows = quickWins
+    .map(
+      (q) => `
+        <tr><td>${esc(q.query)}</td><td class="num"><span class="pos-pill">${fmtPosition(q.position)}</span></td><td class="num">${fmtNum(q.impressions)}</td><td class="num">${fmtNum(q.clicks)}</td><td class="num">+${q.estimatedUpliftClicks.toFixed(1)}</td></tr>`
+    )
+    .join('');
+  return `
+    <table class="rank-table">
+      <thead><tr><th>Query</th><th class="num">Position</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">Est. uplift if #3</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="table-note">"Est. uplift" is impressions × (industry-average CTR at position 3 − industry-average CTR at the current position), using the ${esc(ctrSource)} — a labeled benchmark applied to this site's real impressions, not a measurement of this site's own click behavior at position 3. Treat as directional, not a guarantee.</p>`;
+}
+
+function renderContentGapTable(candidates, stats) {
+  if (!candidates || candidates.length === 0) {
+    const s = stats || { nonBrandedQueryCount: 0, minImpressions: 10, minPosition: 10 };
+    return `<p class="sec-intro">No content gaps in this range: of ${s.nonBrandedQueryCount} non-branded quer${s.nonBrandedQueryCount === 1 ? 'y' : 'ies'}, none had ≥${s.minImpressions} impressions while ranking beyond position ${s.minPosition}.</p>`;
+  }
+  const rows = candidates
+    .map(
+      (c) => `
+        <tr><td>${esc(c.query)}</td><td class="num">${fmtNum(c.impressions)}</td><td class="num"><span class="pos-pill">${fmtPosition(c.position)}</span></td></tr>`
+    )
+    .join('');
+  return `
+    <table class="rank-table">
+      <thead><tr><th>Query</th><th class="num">Impr.</th><th class="num">Position</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="table-note">Real search demand (non-branded, ≥10 impressions) with no page currently ranking on page 1 for it.</p>`;
+}
+
+function renderTopPagesAudit(pages, ctrSource) {
+  if (!pages || pages.length === 0) {
+    return '<p class="sec-intro">No pages with at least 10 impressions in this range yet.</p>';
+  }
+  const flagLabel = { healthy: 'Healthy', underperforming: 'Below benchmark CTR', 'tracking-gap': 'No GA4 sessions found' };
+  const flagClass = { healthy: 'good', underperforming: 'critical', 'tracking-gap': 'warn' };
+  const rows = pages
+    .map(
+      (p) => `
+        <tr><td class="mono">${esc(p.path)}</td><td class="num">${fmtNum(p.impressions)}</td><td class="num">${fmtNum(p.clicks)}</td><td class="num">${fmtPct(p.ctr)}</td><td class="num">${fmtPct(p.benchmarkCtr)}</td><td class="num">${p.ga4Sessions === null ? '—' : fmtNum(p.ga4Sessions)}</td><td><span class="tag ${flagClass[p.flag]}">${esc(flagLabel[p.flag])}</span></td></tr>`
+    )
+    .join('');
+  return `
+    <table class="rank-table">
+      <thead><tr><th>Page</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Benchmark CTR</th><th class="num">GA4 Sessions</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="table-note">"Below benchmark CTR" means actual CTR is under half the ${esc(ctrSource)} for that page's average position — worth checking the title/meta description or whether a SERP feature is absorbing clicks. "No GA4 sessions found" flags a possible tracking gap, not necessarily a content problem — GA4 and GSC can legitimately disagree on channel attribution.</p>`;
+}
+
+export function renderClientDashboardBody(audit, formMeta) {
+  const { stats, meta, ga4 } = audit;
+  const siteName = formMeta.siteName || meta.siteUrl;
+  const siteCategory = formMeta.siteCategory || '';
+
+  const statCards = [
+    { value: fmtNum(stats.totalClicks), label: 'Total Clicks' },
+    { value: fmtNum(stats.totalImpressions), label: 'Total Impressions' },
+    { value: fmtNum(stats.nonBrandedClicks), label: 'Non-Branded Clicks', flag: stats.nonBrandedClicks === 0 },
+    { value: fmtPosition(stats.avgPosition), label: 'Avg. Position' },
+  ];
+
+  return `
+  <header class="masthead">
+    <div class="eyebrow"><span class="dot"></span>${esc(siteName)}${siteCategory ? ` · ${esc(siteCategory)}` : ''}</div>
+    <h1>Search Performance <em>Report.</em></h1>
+    <div class="sub-meta">
+      <p>Live findings from Google Search Console${ga4.status !== 'no-data' ? ' and GA4' : ''} — no third-party keyword-volume tool involved, every number is real, directly from your connected accounts.</p>
+      <div class="range-tag">${esc(meta.dateRangeLabel)}</div>
+    </div>
+  </header>
+
+  <div class="stat-strip">
+    ${statCards
+      .map(
+        (s) => `<div class="stat"><div class="num${s.flag ? ' flag' : ''}">${s.value}</div><div class="label">${esc(s.label)}</div></div>`
+      )
+      .join('')}
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="idx">01</span><h2>Executive summary</h2></div>
+    <div class="exec-list">${renderExecSummary(audit.executiveSummary)}</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">02</span><h2>Quick wins</h2></div>
+    <p class="sec-intro">Queries already ranking on page 1–2 (position 4–20) with real impressions — the fastest realistic path to more clicks, ranked by estimated upside.</p>
+    ${renderQuickWins(audit.quickWins, audit.ctrBenchmarkSource)}
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">03</span><h2>Content gap analysis</h2></div>
+    <p class="sec-intro">Non-branded queries with real demand and no page currently winning them.</p>
+    ${renderContentGapTable(audit.contentGapCandidates, audit.contentGapStats)}
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="idx">04</span><h2>Top pages audit</h2></div>
+    <p class="sec-intro">Every page with meaningful impressions, checked against an industry CTR benchmark and cross-referenced with GA4 sessions.</p>
+    ${renderTopPagesAudit(audit.topPagesAudit, audit.ctrBenchmarkSource)}
+  </section>
+
+  <footer>
+    <span>${esc(meta.siteUrl)}${meta.ga4PropertyId ? ` · GA4: ${esc(meta.ga4PropertyId)}` : ''}</span>
+    <span>Generated ${esc(new Date(meta.generatedAt).toLocaleString())}</span>
+  </footer>`;
+}
+
+export function buildStandaloneHtml(bodyHtml, siteName, dashboardCss, titlePrefix = 'Search &amp; Answer Engine Audit') {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search &amp; Answer Engine Audit — ${esc(siteName)}</title>
+<title>${titlePrefix} — ${esc(siteName)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>${dashboardCss}</style>
